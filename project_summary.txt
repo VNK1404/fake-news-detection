@@ -1,0 +1,98 @@
+## Project Overview – Fake‑News‑Detection Engine
+
+**Root folder:** `d:/fake-news-detection`
+
+### Sub‑packages
+| Sub‑package | Purpose | Key files |
+|------------|---------|-----------|
+| `fake_news_module/config.py` | Central configuration – logging, API keys, endpoints, decision‑engine weights & thresholds. | [config.py](file:///d:/fake-news-detection/fake_news_module/config.py) |
+| `fake_news_module/apis/` | Thin wrappers around external services. | • **gemini_api.py** – calls Google Gemini 2.5‑flash  
+• **google_api.py** – Fact‑Check API  
+• **news_api.py** – NewsAPI.org  
+• **guardian_api.py** – The Guardian content API  
+*(removed `grok_api.py` & `rapid_api.py`)* |
+| `fake_news_module/core/` | Core pipeline & decision logic. | • **pipeline.py** – orchestrates OCR → claim extraction → parallel API calls → scoring  
+• **decision_engine.py** – weighted‑score computation & final decision  
+• **normalization.py** – maps raw API labels to numeric scores |
+| `fake_news_module/ocr/`, `processing/` | Text extraction & cleaning utilities (OCR, claim extraction, validation). |
+| `templates/index.html` | Simple web front‑end that shows claim, API labels, final decision, and confidence. |
+| `check_api_status.py` | Diagnostic script that tests every configured API with a sample claim and prints a report. |
+| `app.py` | Flask entry‑point serving the UI and exposing `/run` to trigger the pipeline. |
+
+### Current API Landscape
+| API | Endpoint | Weight | Status |
+|-----|----------|--------|--------|
+| **Gemini** | `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent` | 0.35 | **Unavailable** – returns `503 Service Unavailable`; script reports *"Unknown"* |
+| **Google Fact‑Check** | `https://factchecktools.googleapis.com/v1alpha1/claims:search` | 0.30 | ✅ Working – returned `Fake` for test claim |
+| **NewsAPI** | `https://newsapi.org/v2/everything` | 0.20 | ✅ Working – 20 articles retrieved |
+| **The Guardian** | `https://content.guardianapis.com/search` | 0.15 | ✅ Working – returned `True` |
+
+*All other external APIs (Grok & RapidAPI) have been **removed** from the code‑base.*
+
+### Recent Changes (summarized)
+| Change | Files affected | Reason |
+|--------|----------------|--------|
+| **Removed** Grok & RapidAPI modules & their imports | `pipeline.py`, `decision_engine.py`, `config.py` | Consolidate to stable, free‑tier services |
+| **Added** Gemini wrapper (`gemini_api.py`) | New file | Replace Grok with Google’s generative model |
+| **Added** Guardian wrapper (`guardian_api.py`) | New file | Provide a reputable news source as a fallback |
+| Updated **weights & docstrings** in `decision_engine.py` to reference new API names | `decision_engine.py` | Align scoring with new services |
+| Updated **environment‑variable injection** in `check_api_status.py` with the user‑provided keys | `check_api_status.py` | Enable immediate testing without editing `config.py` |
+| Adjusted **imports** in `pipeline.py` to call `gemini_api.call_gemini_api` and `guardian_api.call_guardian_api` | `pipeline.py` | Wire the new services into the parallel API execution |
+| **Config file** now pulls keys from env vars (fallback empty) | `config.py` | Secure handling of secrets |
+| UI (`templates/index.html`) class selectors renamed to match new API names (e.g., `.api-dot.gemini`, `.api-dot.guardian`) | `templates/index.html` | Keep frontend in sync with backend changes |
+
+### Project Architecture (high‑level)
+```mermaid
+flowchart TD
+    A[User submits image / PDF] --> B[OCR → extract raw text]
+    B --> C[clean_text]
+    C --> D[validate_text]
+    D --> E[extract_main_claim]
+    E --> F[Parallel API calls]
+    subgraph APIs
+        G[Gemini]
+        H[Google Fact‑Check]
+        I[NewsAPI]
+        J[Guardian]
+    end
+    F --> G & H & I & J
+    G --> K[raw label]
+    H --> K
+    I --> K
+    J --> K
+    K --> L[normalize_result (→ score -1..1)]
+    L --> M[Weighted sum (API_WEIGHTS)]
+    M --> N[final_decision (Real/Fake/Uncertain + confidence)]
+    N --> O[JSON response + UI rendering]
+```
+*The pipeline (`pipeline.py`) orchestrates steps **A–O**. The decision engine (`decision_engine.py`) handles the scoring (`M`) and final decision (`N`).*
+
+### 1. **Set environment variables**:
+   ```powershell
+   $Env:GEMINI_API_KEY="your-gemini-api-key"
+   $Env:GUARDIAN_API_KEY="your-guardian-api-key"
+   ```
+2. **Run the diagnostic script** to sanity‑check all APIs:
+   ```powershell
+   python check_api_status.py
+   ```
+   - Output shows each API status (see the latest run above). Gemini currently returns *Unknown* due to a 503; retry later.
+3. **Start the Flask server** (if you want the web UI):
+   ```powershell
+   python app.py
+   ```
+   - Visit `http://127.0.0.1:5000` in a browser, upload a file, and view the claim, API labels, and final decision.
+4. **Run the pipeline directly** (useful for scripting):
+   ```python
+   from fake_news_module.core.pipeline import fake_news_pipeline
+   result = fake_news_pipeline(r"C:\path\to\sample.pdf")
+   print(result)
+   ```
+
+### Known Issue & Next Steps
+- **Gemini 503** – The service is temporarily unavailable (or the quota may be exceeded).
+  *Suggested actions:* 1) Retry later; 2) Verify Google Cloud quota & billing; 3) If persistent, consider a fallback LLM or keep using the three working APIs.
+- **Future enhancements (optional):** caching of API responses, admin UI for key rotation, richer decision‑engine model.
+
+---
+*You now have a complete textual summary of the project. Save this file as `project_summary.txt` in the repository root.*
