@@ -12,6 +12,7 @@ from typing import Dict, Tuple
 
 from fake_news_module.config import (
     API_WEIGHTS,
+    SOURCE_WEIGHT,
     REAL_HIGH_THRESHOLD,
     FAKE_HIGH_THRESHOLD,
     UNCERTAIN_MED_THRESHOLD,
@@ -19,6 +20,8 @@ from fake_news_module.config import (
 from fake_news_module.core.normalization import normalize_result
 
 logger = logging.getLogger(__name__)
+
+_NON_CONTRIBUTING_LABELS = {"unknown", "uncertain", ""}
 
 
 def compute_score(results: Dict[str, str]) -> float:
@@ -50,6 +53,7 @@ def compute_score(results: Dict[str, str]) -> float:
         "google":     API_WEIGHTS.get("google",     0.20),
         "news":       API_WEIGHTS.get("news",       0.12),
         "guardian":   API_WEIGHTS.get("guardian",   0.08),
+        "source":     SOURCE_WEIGHT,
     }
 
     weighted_sum = 0.0
@@ -58,6 +62,16 @@ def compute_score(results: Dict[str, str]) -> float:
     for signal_name, label in results.items():
         score = normalize_result(label)
         weight = weight_map.get(signal_name, 0.0)
+        if weight == 0.0:
+            logger.debug("compute_score: ignoring unweighted signal='%s'", signal_name)
+            continue
+        if label.lower().strip() in _NON_CONTRIBUTING_LABELS:
+            logger.debug(
+                "compute_score: signal='%s' returned non-contributing label='%s'",
+                signal_name,
+                label,
+            )
+            continue
 
         weighted_sum += score * weight
         active_weight += weight

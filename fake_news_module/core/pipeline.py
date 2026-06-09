@@ -20,10 +20,11 @@ from fake_news_module.ocr.extractor import extract_text
 from fake_news_module.processing.text_cleaner import clean_text
 from fake_news_module.processing.validator import validate_text
 from fake_news_module.processing.claim_extractor import extract_main_text
-from fake_news_module.apis.gemini_api import call_gemini_api
 from fake_news_module.apis.google_api import call_google_fact_check
 from fake_news_module.apis.news_api import call_news_api, analyze_news_results
 from fake_news_module.apis.guardian_api import call_guardian_api
+from fake_news_module.source_scoring.source_scorer import score_source_evidence
+from fake_news_module.explainability.explanation_engine import generate_explanation
 from fake_news_module.core.decision_engine import compute_score, final_decision
 from fake_news_module.config import ROBERTA_ENABLED, SIMILARITY_ENABLED
 
@@ -60,16 +61,18 @@ def _call_roberta(claim: str) -> str:
         return "Unknown"
 
 
-def _call_similarity(claim: str) -> str:
-    """Call the FAISS similarity searcher. Returns 'Uncertain' if disabled or unavailable."""
+def _call_similarity(claim: str) -> tuple:
+    """Call the FAISS similarity searcher. Returns tuple (label, top_matches)."""
     if not SIMILARITY_ENABLED or not _SIMILARITY_AVAILABLE:
         logger.info("Similarity search disabled or unavailable — returning Uncertain.")
-        return "Uncertain"
+        return ("Uncertain", [])
     try:
-        return _similarity_fn(claim)
+        from fake_news_module.similarity.searcher import search
+        res = search(claim)
+        return (res.get("label", "Uncertain"), res.get("top_matches", []))
     except Exception as exc:                          # noqa: BLE001
         logger.error("Similarity search exception: %s", exc)
-        return "Uncertain"
+        return ("Uncertain", [])
 
 
 def _call_google(claim: str) -> str:
@@ -80,13 +83,14 @@ def _call_google(claim: str) -> str:
         return "Unknown"
 
 
-def _call_news(claim: str) -> str:
+def _call_news(claim: str) -> tuple:
     try:
         articles = call_news_api(claim)
-        return analyze_news_results(articles)
+        label = analyze_news_results(articles)
+        return (label, articles)
     except Exception as exc:                          # noqa: BLE001
         logger.error("NewsAPI exception: %s", exc)
-        return "Unknown"
+        return ("Unknown", [])
 
 
 def _call_guardian(claim: str) -> str:
@@ -108,14 +112,14 @@ _API_TASKS: Dict[str, Any] = {
 }
 
 
-def _run_apis_parallel(claim: str) -> Dict[str, str]:
+def _run_apis_parallel(claim: str) -> Dict[str, Any]:
     """
     Fire all API calls AND RoBERTa inference concurrently using a thread pool.
 
     Returns:
-        Dict of {task_name: label_string}
+        Dict of {task_name: result}
     """
-    results: Dict[str, str] = {}
+    results: Dict[str, Any] = {}
 
     with ThreadPoolExecutor(max_workers=5, thread_name_prefix="api_worker") as pool:
         futures = {
@@ -195,13 +199,42 @@ def fake_news_pipeline(file_path: str) -> Dict[str, Any]:
     logger.info("[Step 5/6] Running RoBERTa + APIs in parallel …")
     raw_labels = _run_apis_parallel(claim)
 
+    # Unpack rich results for similarity and news
+    similarity_label = "Uncertain"
+    similarity_matches = []
+    if isinstance(raw_labels.get("similarity"), tuple):
+        similarity_label, similarity_matches = raw_labels["similarity"]
+        raw_labels["similarity"] = similarity_label
+    else:
+        similarity_label = raw_labels.get("similarity", "Uncertain")
+
+    news_label = "Unknown"
+    news_articles = []
+    if isinstance(raw_labels.get("news"), tuple):
+        news_label, news_articles = raw_labels["news"]
+        raw_labels["news"] = news_label
+    else:
+        news_label = raw_labels.get("news", "Unknown")
+
+    # Compute source credibility from claim text and API evidence URLs.
+    source_credibility = score_source_evidence([claim, *news_articles])
+    source_score_numeric = source_credibility["source_score"]
+    if source_score_numeric >= 0.6:
+        source_label = "Real"
+    elif source_score_numeric <= 0.4:
+        source_label = "Fake"
+    else:
+        source_label = "Uncertain"
+    raw_labels["source"] = source_label
+
     # Map internal keys to output-friendly names
     api_results_output = {
         "roberta":           raw_labels.get("roberta",     "Unknown"),
-        "similarity":        raw_labels.get("similarity",  "Uncertain"),
+        "similarity":        similarity_label,
         "google_fact_check": raw_labels.get("google",      "Unknown"),
-        "news_api":          raw_labels.get("news",        "Unknown"),
+        "news_api":          news_label,
         "guardian":          raw_labels.get("guardian",    "Unknown"),
+        "source":            raw_labels.get("source",     "Unknown"),
     }
 
     # Keys for decision engine must match API_WEIGHTS keys in config.py
@@ -211,12 +244,24 @@ def fake_news_pipeline(file_path: str) -> Dict[str, Any]:
         "google":     raw_labels.get("google",     "Unknown"),
         "news":       raw_labels.get("news",       "Unknown"),
         "guardian":   raw_labels.get("guardian",   "Unknown"),
+        "source":     raw_labels.get("source",     "Unknown"),
     }
 
     # ── STEP 6: Score + Decision ──────────────────────────────────
     logger.info("[Step 6/6] Computing score and final decision …")
     score = compute_score(decision_input)
     decision, confidence = final_decision(score)
+    # Generate explanation for UI
+    explanation = generate_explanation(
+        claim=claim,
+        verdict=decision,
+        confidence=confidence,
+        score=score,
+        api_results=decision_input,
+        similarity_top_matches=similarity_matches,
+        news_articles=news_articles,
+        source_credibility=source_credibility,
+    )
 
     elapsed = time.perf_counter() - pipeline_start
     logger.info(
@@ -229,6 +274,8 @@ def fake_news_pipeline(file_path: str) -> Dict[str, Any]:
         "extracted_text": raw_text[:2000],   # Truncate for readability
         "claim":          claim,
         "api_results":    api_results_output,
+        "explanation":      explanation,
+        "source_score":    source_score_numeric,
         "score":          score,
         "final_decision": decision,
         "confidence":     confidence,

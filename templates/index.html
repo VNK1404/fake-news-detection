@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fake News Detector — AI Evidence Integrity Monitor</title>
-  <meta name="description" content="AI-powered multi-modal fake news detection using OCR, Grok, Google Fact Check, NewsAPI and RapidAPI." />
+  <meta name="description" content="AI-powered multi-modal fake news detection using OCR, RoBERTa, FAISS, Google Fact Check, NewsAPI, Guardian, and source credibility scoring." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
   <style>
@@ -552,10 +552,8 @@
       font-size: 14px;
     }
 
-    .api-dot.grok   { background: rgba(99,179,237,0.15); }
     .api-dot.google { background: rgba(246,173,85,0.15); }
     .api-dot.news   { background: rgba(104,211,145,0.15); }
-    .api-dot.rapid  { background: rgba(183,148,244,0.15); }
 
     .api-label {
       font-size: 12px;
@@ -682,10 +680,8 @@
       height: 100%;
     }
 
-    .w-seg.grok   { flex: 0.4; background: var(--accent); }
     .w-seg.google { flex: 0.3; background: var(--yellow); }
     .w-seg.news   { flex: 0.2; background: var(--green); }
-    .w-seg.rapid  { flex: 0.1; background: var(--purple); }
 
     /* ─── FOOTER ──────────────────────────────────────── */
     .footer {
@@ -710,7 +706,7 @@
     </div>
     <h1>Multi-Modal Fake News<br>Detection Engine</h1>
     <p>Upload an image or PDF document. The system extracts text via OCR,
-       cross-checks with Grok, Google Fact Check, NewsAPI &amp; RapidAPI,
+       cross-checks with RoBERTa, FAISS, Google Fact Check, NewsAPI, Guardian, and source credibility,
        and returns a weighted credibility verdict.</p>
   </header>
 
@@ -828,42 +824,39 @@
       <div class="api-results-card">
         <p class="section-title">API Verdicts</p>
         <div class="api-row">
-          <div class="api-name">
-            <div class="api-dot grok">⚡</div>
-            Grok (xAI)
-          </div>
-          <span class="api-label" id="lbl-grok">—</span>
+          <div class="api-name"><div class="api-dot" style="background:var(--blue);">🤖</div> RoBERTa (Local)</div>
+          <span class="api-label" id="lbl-roberta">—</span>
         </div>
         <div class="api-row">
-          <div class="api-name">
-            <div class="api-dot google">🔍</div>
-            Google Fact Check
-          </div>
+          <div class="api-name"><div class="api-dot" style="background:var(--purple);">🧬</div> FAISS Similarity</div>
+          <span class="api-label" id="lbl-similarity">—</span>
+        </div>
+        <div class="api-row">
+          <div class="api-name"><div class="api-dot" style="background:var(--red);">🔍</div> Google Fact Check</div>
           <span class="api-label" id="lbl-google">—</span>
         </div>
         <div class="api-row">
-          <div class="api-name">
-            <div class="api-dot news">📰</div>
-            NewsAPI
-          </div>
+          <div class="api-name"><div class="api-dot" style="background:var(--green);">📰</div> NewsAPI</div>
           <span class="api-label" id="lbl-news">—</span>
         </div>
         <div class="api-row">
-          <div class="api-name">
-            <div class="api-dot rapid">⚙️</div>
-            RapidAPI
-          </div>
-          <span class="api-label" id="lbl-rapid">—</span>
+          <div class="api-name"><div class="api-dot" style="background:var(--yellow);">🗞️</div> The Guardian</div>
+          <span class="api-label" id="lbl-guardian">—</span>
+        </div>
+        <div class="api-row">
+          <div class="api-name"><div class="api-dot" style="background:var(--border);">🏢</div> Source Credibility</div>
+          <span class="api-label" id="lbl-source">—</span>
         </div>
 
         <!-- Weight bar -->
         <div style="margin-top: 16px;">
-          <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">API WEIGHTS: Grok 40% · Google 30% · News 20% · Rapid 10%</p>
+          <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">WEIGHTS: RoBERTa 35% · FAISS 25% · Google 20% · News 12% · Guardian 8%</p>
           <div class="weights-bar">
-            <div class="w-seg grok"></div>
-            <div class="w-seg google"></div>
-            <div class="w-seg news"></div>
-            <div class="w-seg rapid"></div>
+            <div class="w-seg" style="flex:35; background:var(--blue);"></div>
+            <div class="w-seg" style="flex:25; background:var(--purple);"></div>
+            <div class="w-seg" style="flex:20; background:var(--red);"></div>
+            <div class="w-seg" style="flex:12; background:var(--green);"></div>
+            <div class="w-seg" style="flex:8; background:var(--yellow);"></div>
           </div>
         </div>
       </div>
@@ -881,7 +874,31 @@
       </div>
     </div>
 
-    <!-- Reset -->
+<!-- Explanation Panel -->
+<div class="info-card">
+  <p class="section-title">Explanation</p>
+  <ul id="explanation-reasons" style="list-style-type: disc; margin-left: 20px; color: var(--text-secondary);"></ul>
+</div>
+
+<!-- Confidence Breakdown Panel -->
+<div class="info-card">
+  <p class="section-title">Confidence Breakdown</p>
+  <ul id="breakdown-list" style="list-style-type: disc; margin-left: 20px; color: var(--text-secondary);"></ul>
+</div>
+
+<!-- Similar Claims Panel -->
+<div class="info-card">
+  <p class="section-title">Similar Past Claims (FAISS)</p>
+  <ul id="similar-claims-list" style="list-style-type: disc; margin-left: 20px; color: var(--text-secondary);"></ul>
+</div>
+
+<!-- Source Credibility Panel -->
+<div class="info-card">
+  <p class="section-title">Source Credibility Evidence</p>
+  <ul id="source-evidence-list" style="list-style-type: disc; margin-left: 20px; color: var(--text-secondary);"></ul>
+</div>
+
+<!-- Reset -->
     <div class="reset-row">
       <button id="reset-btn" class="btn btn-outline">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.38"/></svg>
@@ -1049,16 +1066,80 @@ function populateResults(data) {
     el.textContent = val || 'Unknown';
     el.className = 'api-label ' + labelClass(val);
   }
-  setLabel('lbl-grok',   apis.grok);
+  setLabel('lbl-roberta', apis.roberta);
+  setLabel('lbl-similarity', apis.similarity);
   setLabel('lbl-google', apis.google_fact_check);
   setLabel('lbl-news',   apis.news_api);
-  setLabel('lbl-rapid',  apis.rapid_api);
+  setLabel('lbl-guardian', apis.guardian);
+  setLabel('lbl-source', apis.source);
 
   // Claim & text
   document.getElementById('claim-text').textContent = claim;
   document.getElementById('extracted-text-display').textContent = extracted;
 
-  resultSection.classList.add('show');
+  // Explanation and confidence breakdown
+const explanation = data.explanation || {};
+const reasons = explanation.reasons || [];
+const breakdown = explanation.confidence_breakdown || {};
+// Populate reasons list
+const reasonsList = document.getElementById('explanation-reasons');
+reasonsList.innerHTML = '';
+reasons.forEach(r => {
+  const li = document.createElement('li');
+  li.textContent = r;
+  reasonsList.appendChild(li);
+});
+// Populate breakdown list
+const breakdownList = document.getElementById('breakdown-list');
+breakdownList.innerHTML = '';
+Object.entries(breakdown).forEach(([key, val]) => {
+  if (val && typeof val === 'object' && 'weight_pct' in val) {
+    const li = document.createElement('li');
+    li.textContent = `${key}: ${val.weight_pct}%`;
+    breakdownList.appendChild(li);
+  }
+});
+
+// Populate Similar Claims list
+const similarList = document.getElementById('similar-claims-list');
+similarList.innerHTML = '';
+const matches = (explanation.evidence && explanation.evidence.similarity_evidence && explanation.evidence.similarity_evidence.top_matches) || [];
+if (matches.length === 0) {
+    const li = document.createElement('li');
+    li.textContent = 'No strongly similar past claims found.';
+    similarList.appendChild(li);
+} else {
+    matches.forEach(m => {
+        const li = document.createElement('li');
+        const score = typeof m.score === 'number' ? m.score.toFixed(2) : '0.00';
+        li.textContent = `${m.label} (Score: ${score}): ${m.title || ''}`;
+        similarList.appendChild(li);
+    });
+}
+
+// Populate Source Credibility Evidence list
+const sourceList = document.getElementById('source-evidence-list');
+sourceList.innerHTML = '';
+const sourceEv = (explanation.evidence && explanation.evidence.source_evidence) || {};
+const sourcesFound = sourceEv.sources_found || [];
+if (sourcesFound.length === 0) {
+    const li = document.createElement('li');
+    li.textContent = 'No trusted sources detected in the query or API outputs.';
+    sourceList.appendChild(li);
+} else {
+    sourcesFound.forEach(s => {
+        const li = document.createElement('li');
+        if (s && typeof s === 'object') {
+          const score = typeof s.score === 'number' ? s.score.toFixed(2) : '0.50';
+          li.textContent = `${s.domain || 'Unknown source'} (Credibility: ${score})`;
+        } else {
+          li.textContent = String(s);
+        }
+        sourceList.appendChild(li);
+    });
+}
+
+resultSection.classList.add('show');
   resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 

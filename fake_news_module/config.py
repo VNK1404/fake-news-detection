@@ -76,6 +76,7 @@ GUARDIAN_API_URL = "https://content.guardianapis.com/search"
 # DECISION ENGINE WEIGHTS
 # ──────────────────────────────────────────────
 # Phase 2 weights — Similarity search added as second signal
+# Note: these 5 weights must sum to 1.00; source credibility uses SOURCE_WEIGHT separately.
 API_WEIGHTS = {
     "roberta":    0.35,   # Local RoBERTa classifier        (Phase 1)
     "similarity": 0.25,   # FAISS similarity search         (Phase 2)
@@ -83,6 +84,10 @@ API_WEIGHTS = {
     "news":       0.12,   # NewsAPI
     "guardian":   0.08,   # The Guardian Content API
 }
+
+# Source credibility signal weight (Phase 4) — kept separate so decision_engine
+# can normalise correctly when source data is unavailable.
+SOURCE_WEIGHT: float = 0.10
 
 # ──────────────────────────────────────────────
 # DECISION THRESHOLDS
