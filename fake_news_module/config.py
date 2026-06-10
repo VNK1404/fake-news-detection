@@ -124,8 +124,9 @@ TRUSTED_SOURCE_THRESHOLD = 2    # >= 2 trusted sources → Real
 # ──────────────────────────────────────────────
 # HTTP SETTINGS
 # ──────────────────────────────────────────────
-REQUEST_TIMEOUT = 15            # seconds
-MAX_RETRIES = 2
+API_TIMEOUT_SECONDS = 10        # seconds per external async API request
+REQUEST_TIMEOUT = API_TIMEOUT_SECONDS
+MAX_RETRIES = 3
 
 # ──────────────────────────────────────────────
 # SUPPORTED FILE TYPES

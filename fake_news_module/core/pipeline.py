@@ -12,6 +12,7 @@ Coordinates:
 """
 
 import logging
+import asyncio
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, Dict
@@ -20,9 +21,7 @@ from fake_news_module.ocr.extractor import extract_text
 from fake_news_module.processing.text_cleaner import clean_text
 from fake_news_module.processing.validator import validate_text
 from fake_news_module.processing.claim_extractor import extract_main_text
-from fake_news_module.apis.google_api import call_google_fact_check
-from fake_news_module.apis.news_api import call_news_api, analyze_news_results
-from fake_news_module.apis.guardian_api import call_guardian_api
+from fake_news_module.apis.async_client import run_external_apis_async
 from fake_news_module.source_scoring.source_scorer import score_source_evidence
 from fake_news_module.explainability.explanation_engine import generate_explanation
 from fake_news_module.core.decision_engine import compute_score, final_decision
@@ -75,40 +74,25 @@ def _call_similarity(claim: str) -> tuple:
         return ("Uncertain", [])
 
 
-def _call_google(claim: str) -> str:
+def _call_external_apis(claim: str) -> Dict[str, Any]:
+    """Run external APIs concurrently through the aiohttp async client."""
     try:
-        return call_google_fact_check(claim)
+        return asyncio.run(run_external_apis_async(claim))
     except Exception as exc:                          # noqa: BLE001
-        logger.error("Google Fact Check exception: %s", exc)
-        return "Unknown"
-
-
-def _call_news(claim: str) -> tuple:
-    try:
-        articles = call_news_api(claim)
-        label = analyze_news_results(articles)
-        return (label, articles)
-    except Exception as exc:                          # noqa: BLE001
-        logger.error("NewsAPI exception: %s", exc)
-        return ("Unknown", [])
-
-
-def _call_guardian(claim: str) -> str:
-    try:
-        return call_guardian_api(claim)
-    except Exception as exc:                          # noqa: BLE001
-        logger.error("Guardian API exception: %s", exc)
-        return "Unknown"
+        logger.error("Async external API execution exception: %s", exc)
+        return {
+            "google": "Unknown",
+            "news": ("Unknown", []),
+            "guardian": "Unknown",
+        }
 
 
 # Task registry: name → callable
 # RoBERTa and Similarity run in the same thread pool as the API calls.
 _API_TASKS: Dict[str, Any] = {
-    "roberta":    _call_roberta,
-    "similarity": _call_similarity,
-    "google":     _call_google,
-    "news":       _call_news,
-    "guardian":   _call_guardian,
+    "roberta":       _call_roberta,
+    "similarity":    _call_similarity,
+    "external_apis": _call_external_apis,
 }
 
 
@@ -129,7 +113,11 @@ def _run_apis_parallel(claim: str) -> Dict[str, Any]:
         for future in as_completed(futures):
             name = futures[future]
             try:
-                results[name] = future.result()
+                result = future.result()
+                if name == "external_apis" and isinstance(result, dict):
+                    results.update(result)
+                else:
+                    results[name] = result
             except Exception as exc:              # noqa: BLE001
                 logger.error("Task '%s' raised exception: %s", name, exc)
                 results[name] = "Unknown"
