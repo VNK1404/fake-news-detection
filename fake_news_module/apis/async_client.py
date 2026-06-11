@@ -17,6 +17,7 @@ from typing import Any, Dict, List, Tuple
 
 import aiohttp
 
+from fake_news_module.cache import get_cache_manager
 from fake_news_module.config import (
     API_TIMEOUT_SECONDS,
     GOOGLE_API_KEY,
@@ -238,6 +239,16 @@ async def async_guardian(session: aiohttp.ClientSession, claim: str) -> str:
 
 async def run_external_apis_async(claim: str) -> Dict[str, Any]:
     """Run all external APIs concurrently and return pipeline-compatible keys."""
+    cache = get_cache_manager()
+    cached = cache.get_api_response("external_apis", claim)
+    if isinstance(cached, dict):
+        logger.info("External API cache hit")
+        return {
+            "google": _coerce_label("google", cached.get("google"), "Unknown"),
+            "news": _coerce_news_result(cached.get("news")),
+            "guardian": _coerce_label("guardian", cached.get("guardian"), "Unknown"),
+        }
+
     timeout = aiohttp.ClientTimeout(total=API_TIMEOUT_SECONDS)
     async with aiohttp.ClientSession(timeout=timeout) as session:
         google_result, news_result, guardian_result = await asyncio.gather(
@@ -247,11 +258,13 @@ async def run_external_apis_async(claim: str) -> Dict[str, Any]:
             return_exceptions=True,
         )
 
-    return {
+    result = {
         "google": _coerce_label("google", google_result, "Unknown"),
         "news": _coerce_news_result(news_result),
         "guardian": _coerce_label("guardian", guardian_result, "Unknown"),
     }
+    cache.set_api_response("external_apis", claim, result)
+    return result
 
 
 def _coerce_label(name: str, result: Any, fallback: str) -> str:
@@ -275,5 +288,12 @@ def _coerce_news_result(result: Any) -> Tuple[str, List[JsonDict]]:
         and isinstance(result[1], list)
     ):
         return result
+    if (
+        isinstance(result, list)
+        and len(result) == 2
+        and isinstance(result[0], str)
+        and isinstance(result[1], list)
+    ):
+        return (result[0], result[1])
     logger.error("news async task returned unexpected type: %s", type(result).__name__)
     return ("Unknown", [])

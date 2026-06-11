@@ -38,6 +38,8 @@ from typing import Dict, List, Optional, Any
 
 import numpy as np
 
+from fake_news_module.cache import get_cache_manager
+
 logger = logging.getLogger(__name__)
 
 # ──────────────────────────────────────────────
@@ -144,6 +146,12 @@ def search(
         logger.warning("Searcher.search: empty claim.")
         return _UNCERTAIN
 
+    cache = get_cache_manager()
+    cached = cache.get_similarity_result(claim)
+    if isinstance(cached, dict):
+        logger.info("Searcher.search: cache hit")
+        return cached
+
     # Load config defaults
     try:
         from fake_news_module.config import SIMILARITY_TOP_K, SIMILARITY_MIN_SCORE
@@ -201,7 +209,9 @@ def search(
         # Not enough confident matches → Uncertain
         if not valid_labels:
             logger.info("Searcher.search: no matches above threshold — Uncertain")
-            return {**_UNCERTAIN, "top_matches": top_matches}
+            result = {**_UNCERTAIN, "top_matches": top_matches}
+            cache.set_similarity_result(claim, result)
+            return result
 
         # Majority vote
         real_count = sum(1 for l in valid_labels if l == 1)
@@ -229,11 +239,13 @@ def search(
             real_count, fake_count, voted_label, conf,
         )
 
-        return {
+        result = {
             "label":       voted_label,
             "confidence":  conf,
             "top_matches": top_matches,
         }
+        cache.set_similarity_result(claim, result)
+        return result
 
     except Exception as exc:  # noqa: BLE001
         logger.error("Searcher.search: retrieval failed — %s", exc)

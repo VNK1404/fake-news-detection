@@ -128,6 +128,25 @@ API_TIMEOUT_SECONDS = 10        # seconds per external async API request
 REQUEST_TIMEOUT = API_TIMEOUT_SECONDS
 MAX_RETRIES = 3
 
+# ----------------------------------------------------------------------
+# REDIS CACHE (Phase 6)
+# ----------------------------------------------------------------------
+CACHE_TTL_SECONDS = int(os.environ.get("CACHE_TTL_SECONDS", "86400"))
+REDIS_URL = os.environ.get("REDIS_URL", "")
+CACHE_ENABLED = os.environ.get(
+    "CACHE_ENABLED",
+    "true" if REDIS_URL else "false",
+).lower() not in {"0", "false", "no"}
+CACHE_KEY_PREFIX = os.environ.get("CACHE_KEY_PREFIX", "fake_news")
+
+# ----------------------------------------------------------------------
+# ANALYTICS (Phase 7)
+# ----------------------------------------------------------------------
+ANALYTICS_DB_PATH = os.environ.get(
+    "ANALYTICS_DB_PATH",
+    str(_pathlib.Path(__file__).resolve().parent.parent / "analytics.db"),
+)
+
 # ──────────────────────────────────────────────
 # SUPPORTED FILE TYPES
 # ──────────────────────────────────────────────

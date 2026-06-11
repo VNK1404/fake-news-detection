@@ -23,3 +23,7 @@ fake_news_module/similarity/index/
 .idea/
 *.bin
 *.npy
+
+.pytest_tmp/
+.server*.log
+analytics.db

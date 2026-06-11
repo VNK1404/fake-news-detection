@@ -25,6 +25,8 @@ from fake_news_module.apis.async_client import run_external_apis_async
 from fake_news_module.source_scoring.source_scorer import score_source_evidence
 from fake_news_module.explainability.explanation_engine import generate_explanation
 from fake_news_module.core.decision_engine import compute_score, final_decision
+from fake_news_module.analytics import get_analytics_service
+from fake_news_module.cache import get_cache_manager
 from fake_news_module.config import ROBERTA_ENABLED, SIMILARITY_ENABLED
 
 # Phase 1: RoBERTa ML inference
@@ -96,7 +98,7 @@ _API_TASKS: Dict[str, Any] = {
 }
 
 
-def _run_apis_parallel(claim: str) -> Dict[str, Any]:
+def _run_apis_parallel(claim: str) -> tuple[Dict[str, Any], Dict[str, float]]:
     """
     Fire all API calls AND RoBERTa inference concurrently using a thread pool.
 
@@ -104,10 +106,18 @@ def _run_apis_parallel(claim: str) -> Dict[str, Any]:
         Dict of {task_name: result}
     """
     results: Dict[str, Any] = {}
+    timings: Dict[str, float] = {}
+
+    def _timed_call(name: str, fn: Any) -> Any:
+        start = time.perf_counter()
+        try:
+            return fn(claim)
+        finally:
+            timings[name] = time.perf_counter() - start
 
     with ThreadPoolExecutor(max_workers=5, thread_name_prefix="api_worker") as pool:
         futures = {
-            pool.submit(fn, claim): name
+            pool.submit(_timed_call, name, fn): name
             for name, fn in _API_TASKS.items()
         }
         for future in as_completed(futures):
@@ -122,7 +132,7 @@ def _run_apis_parallel(claim: str) -> Dict[str, Any]:
                 logger.error("Task '%s' raised exception: %s", name, exc)
                 results[name] = "Unknown"
 
-    return results
+    return results, timings
 
 
 # ──────────────────────────────────────────────
@@ -183,9 +193,27 @@ def fake_news_pipeline(file_path: str) -> Dict[str, Any]:
     logger.info("[Step 4/6] Extracting main claim …")
     claim = extract_main_text(cleaned)
 
+    cache = get_cache_manager()
+    cached_result = cache.get_pipeline_result(claim)
+    if isinstance(cached_result, dict):
+        elapsed = time.perf_counter() - pipeline_start
+        logger.info("PIPELINE CACHE HIT in %.2fs | claim_hash=%s", elapsed, cache.claim_hash(claim))
+        get_analytics_service().record_analysis(
+            cached_result,
+            pipeline_duration=elapsed,
+            stage_timings={},
+            cache_hit=True,
+        )
+        return cached_result
+
     # ── STEP 5: Run all tasks in parallel ─────────────────────────
     logger.info("[Step 5/6] Running RoBERTa + APIs in parallel …")
-    raw_labels = _run_apis_parallel(claim)
+    parallel_result = _run_apis_parallel(claim)
+    if isinstance(parallel_result, tuple) and len(parallel_result) == 2:
+        raw_labels, stage_timings = parallel_result
+    else:
+        raw_labels = parallel_result
+        stage_timings = {}
 
     # Unpack rich results for similarity and news
     similarity_label = "Uncertain"
@@ -258,7 +286,7 @@ def fake_news_pipeline(file_path: str) -> Dict[str, Any]:
     )
     logger.info("=" * 60)
 
-    return {
+    result = {
         "extracted_text": raw_text[:2000],   # Truncate for readability
         "claim":          claim,
         "api_results":    api_results_output,
@@ -268,3 +296,11 @@ def fake_news_pipeline(file_path: str) -> Dict[str, Any]:
         "final_decision": decision,
         "confidence":     confidence,
     }
+    cache.set_pipeline_result(claim, result)
+    get_analytics_service().record_analysis(
+        result,
+        pipeline_duration=elapsed,
+        stage_timings=stage_timings,
+        cache_hit=False,
+    )
+    return result

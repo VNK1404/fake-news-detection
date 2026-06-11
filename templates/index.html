@@ -692,8 +692,91 @@
     }
 
     /* ─── UTILITY ─────────────────────────────────────── */
+    .dashboard-section {
+      margin-top: 36px;
+    }
+
+    .dashboard-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .dashboard-header h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .dashboard-updated {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 760px) { .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 420px) { .metric-grid { grid-template-columns: 1fr; } }
+
+    .metric-tile {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 82px;
+    }
+
+    .metric-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .metric-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    @media (max-width: 760px) { .chart-grid { grid-template-columns: 1fr; } }
+
+    .chart-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      min-height: 260px;
+    }
+
+    .chart-panel.wide {
+      grid-column: 1 / -1;
+    }
+
+    .chart-panel canvas {
+      width: 100%;
+      max-height: 220px;
+    }
+
     .hidden { display: none !important; }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 <div class="page-wrapper">
@@ -908,6 +991,63 @@
 
   </div><!-- /result-section -->
 
+  <section class="dashboard-section" id="analytics-dashboard">
+    <div class="dashboard-header">
+      <h2>Analytics Dashboard</h2>
+      <span class="dashboard-updated" id="analytics-updated">Loading metrics</span>
+    </div>
+
+    <div class="metric-grid">
+      <div class="metric-tile">
+        <div class="metric-label">Total Analyses</div>
+        <div class="metric-value" id="metric-total">0</div>
+      </div>
+      <div class="metric-tile">
+        <div class="metric-label">Fake</div>
+        <div class="metric-value" id="metric-fake">0%</div>
+      </div>
+      <div class="metric-tile">
+        <div class="metric-label">Real</div>
+        <div class="metric-value" id="metric-real">0%</div>
+      </div>
+      <div class="metric-tile">
+        <div class="metric-label">Uncertain</div>
+        <div class="metric-value" id="metric-uncertain">0%</div>
+      </div>
+      <div class="metric-tile">
+        <div class="metric-label">Avg Confidence</div>
+        <div class="metric-value" id="metric-confidence">0%</div>
+      </div>
+      <div class="metric-tile">
+        <div class="metric-label">Avg Response</div>
+        <div class="metric-value" id="metric-latency">0.00s</div>
+      </div>
+      <div class="metric-tile">
+        <div class="metric-label">Cache Hit</div>
+        <div class="metric-value" id="metric-cache">0%</div>
+      </div>
+      <div class="metric-tile">
+        <div class="metric-label">API Success</div>
+        <div class="metric-value" id="metric-api-success">0%</div>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-panel">
+        <p class="section-title">Verdict Mix</p>
+        <canvas id="verdict-chart" aria-label="Verdict distribution chart"></canvas>
+      </div>
+      <div class="chart-panel">
+        <p class="section-title">Common Topics</p>
+        <canvas id="topics-chart" aria-label="Most common topics chart"></canvas>
+      </div>
+      <div class="chart-panel wide">
+        <p class="section-title">Latency Trend</p>
+        <canvas id="latency-chart" aria-label="Latency trend chart"></canvas>
+      </div>
+    </div>
+  </section>
+
   <footer class="footer">
     AI-Driven Digital Evidence Integrity Monitoring System &nbsp;·&nbsp; Multi-Modal Fake News Detection Module
   </footer>
@@ -934,6 +1074,9 @@ const steps = ['step-ocr','step-clean','step-claim','step-apis','step-decision']
 const STEP_DURATION = [1200, 600, 500, 8000, 800];  // ms per step
 
 let selectedFile = null;
+let verdictChart = null;
+let topicsChart = null;
+let latencyChart = null;
 
 // ── FILE SELECTION ─────────────────────────────────────────────────────────
 function formatBytes(b) {
@@ -1149,6 +1292,118 @@ function showError(msg) {
   progressSection.classList.remove('show');
 }
 
+function pct(value) {
+  return Math.round((Number(value) || 0) * 100) + '%';
+}
+
+function setText(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = value;
+}
+
+function chartOptions() {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { labels: { color: '#94a3b8' } }
+    },
+    scales: {
+      x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(99,179,237,0.08)' } },
+      y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(99,179,237,0.08)' }, beginAtZero: true }
+    }
+  };
+}
+
+function replaceChart(existing, canvasId, config) {
+  if (existing) existing.destroy();
+  const canvas = document.getElementById(canvasId);
+  if (!canvas || typeof Chart === 'undefined') return null;
+  return new Chart(canvas, config);
+}
+
+function updateDashboardCharts(summary, performance) {
+  const verdictData = [
+    summary.real_count || 0,
+    summary.fake_count || 0,
+    summary.uncertain_count || 0
+  ];
+
+  verdictChart = replaceChart(verdictChart, 'verdict-chart', {
+    type: 'pie',
+    data: {
+      labels: ['Real', 'Fake', 'Uncertain'],
+      datasets: [{
+        data: verdictData,
+        backgroundColor: ['#68d391', '#fc8181', '#f6ad55']
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#94a3b8' } } }
+    }
+  });
+
+  const topics = summary.most_common_topics || [];
+  topicsChart = replaceChart(topicsChart, 'topics-chart', {
+    type: 'bar',
+    data: {
+      labels: topics.length ? topics.map(t => t.topic) : ['No data'],
+      datasets: [{
+        label: 'Count',
+        data: topics.length ? topics.map(t => t.count) : [0],
+        backgroundColor: '#63b3ed'
+      }]
+    },
+    options: chartOptions()
+  });
+
+  const trend = performance.latency_trend || [];
+  latencyChart = replaceChart(latencyChart, 'latency-chart', {
+    type: 'line',
+    data: {
+      labels: trend.length ? trend.map((_, i) => i + 1) : [1],
+      datasets: [{
+        label: 'Pipeline seconds',
+        data: trend.length ? trend.map(item => Number(item.pipeline_duration || 0).toFixed(3)) : [0],
+        borderColor: '#b794f4',
+        backgroundColor: 'rgba(183,148,244,0.14)',
+        tension: 0.35,
+        fill: true
+      }]
+    },
+    options: chartOptions()
+  });
+}
+
+async function loadAnalyticsDashboard() {
+  try {
+    const response = await fetch('/api/analytics');
+    if (!response.ok) throw new Error('analytics unavailable');
+    const payload = await response.json();
+    const summary = payload.summary || {};
+    const performance = payload.performance || {};
+    const total = summary.total_analyses || 0;
+    const rate = count => total ? (count / total) : 0;
+
+    setText('metric-total', String(total));
+    setText('metric-fake', pct(rate(summary.fake_count || 0)));
+    setText('metric-real', pct(rate(summary.real_count || 0)));
+    setText('metric-uncertain', pct(rate(summary.uncertain_count || 0)));
+    setText('metric-confidence', pct(summary.average_confidence || 0));
+    setText('metric-latency', (summary.average_latency || 0).toFixed(2) + 's');
+    setText('metric-cache', pct(summary.cache_hit_rate || 0));
+    setText('metric-api-success', pct(summary.api_success_rate || 0));
+    setText('analytics-updated', 'Updated ' + new Date().toLocaleTimeString());
+
+    updateDashboardCharts(summary, performance);
+  } catch (err) {
+    setText('analytics-updated', 'Metrics unavailable');
+    console.warn(err);
+  }
+}
+
 // ── RESET ──────────────────────────────────────────────────────────────────
 function resetUI() {
   clearFile();
@@ -1210,6 +1465,7 @@ analyzeBtn.addEventListener('click', async () => {
     }
 
     populateResults(data);
+    loadAnalyticsDashboard();
 
   } catch (err) {
     progressSection.classList.remove('show');
@@ -1219,6 +1475,8 @@ analyzeBtn.addEventListener('click', async () => {
 
   analyzeBtn.disabled = false;
 });
+
+document.addEventListener('DOMContentLoaded', loadAnalyticsDashboard);
 </script>
 </body>
 </html>

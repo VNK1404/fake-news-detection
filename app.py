@@ -17,6 +17,7 @@ from werkzeug.utils import secure_filename
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from fake_news_module.core.pipeline import fake_news_pipeline
+from fake_news_module.analytics.dashboard_api import analytics_bp
 from fake_news_module.config import SUPPORTED_IMAGE_EXTENSIONS, SUPPORTED_PDF_EXTENSIONS
 
 # ──────────────────────────────────────────────
@@ -32,6 +33,7 @@ app = Flask(__name__, template_folder="templates", static_folder="static")
 app.config["UPLOAD_FOLDER"] = str(UPLOAD_FOLDER)
 app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH
 app.secret_key = os.environ.get("FLASK_SECRET", "fnd-secret-2024-xai")
+app.register_blueprint(analytics_bp)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
