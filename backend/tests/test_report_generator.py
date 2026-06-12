@@ -9,6 +9,7 @@ from pypdf import PdfReader
 
 
 def _install_pipeline_import_stubs(monkeypatch):
+    monkeypatch.setenv("FLASK_SECRET", "test-secret")
     monkeypatch.setitem(sys.modules, "pytesseract", types.SimpleNamespace(pytesseract=types.SimpleNamespace()))
     monkeypatch.setitem(sys.modules, "cv2", types.SimpleNamespace())
     monkeypatch.setitem(sys.modules, "pdfplumber", types.SimpleNamespace(open=lambda *_args, **_kwargs: None))

@@ -12,12 +12,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from flask import Flask, request, jsonify, render_template, send_file
+from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
 # Ensure project root is on path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from fake_news_module.core.pipeline import fake_news_pipeline
 from fake_news_module.analytics.dashboard_api import analytics_bp
 from fake_news_module.reporting.report_generator import (
     build_report_payload,
@@ -41,13 +41,35 @@ REPORT_REGISTRY_LIMIT = 50
 REPORT_REGISTRY: dict[str, dict[str, object]] = {}
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
+CORS(
+    app,
+    resources={
+        r"/*": {
+            "origins": [
+                "http://localhost:3000",
+                "http://127.0.0.1:3000",
+            ]
+        }
+    },
+    expose_headers=["X-Analysis-Id"],
+)
 app.config["UPLOAD_FOLDER"] = str(UPLOAD_FOLDER)
 app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH
-app.secret_key = os.environ.get("FLASK_SECRET", "fnd-secret-2024-xai")
+app.secret_key = os.environ.get("FLASK_SECRET")
+if not app.secret_key:
+    raise RuntimeError(
+        "FLASK_SECRET environment variable not set."
+    )
 app.register_blueprint(analytics_bp)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+def fake_news_pipeline(input_value: str):
+    from fake_news_module.core.pipeline import fake_news_pipeline as _pipeline
+
+    return _pipeline(input_value)
 
 
 def allowed_file(filename: str) -> bool:
@@ -115,12 +137,42 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({
+        "status": "healthy",
+        "service": "fake-news-detection",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }), 200
+
+
 @app.route("/analyze", methods=["POST"])
 def analyze():
     """
-    Accepts a multipart file upload, runs the detection pipeline,
+    Accepts a text claim or multipart file upload, runs the detection pipeline,
     and returns a JSON result.
     """
+    claim_text = (request.form.get("text") or "").strip()
+    if claim_text:
+        try:
+            result = fake_news_pipeline(claim_text)
+            analysis_id = _store_reportable_result(result)
+            response = jsonify(result)
+            response.headers["X-Analysis-Id"] = analysis_id
+            return response, 200
+
+        except ValueError as exc:
+            logger.warning("Validation error: %s", exc)
+            return jsonify({"error": str(exc)}), 422
+
+        except RuntimeError as exc:
+            logger.error("Runtime error: %s", exc)
+            return jsonify({"error": str(exc)}), 500
+
+        except Exception as exc:                      # noqa: BLE001
+            logger.exception("Unexpected error: %s", exc)
+            return jsonify({"error": "An unexpected error occurred."}), 500
+
     if "file" not in request.files:
         return jsonify({"error": "No file part in the request."}), 400
 
