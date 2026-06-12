@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Analytics & Reports | VeriNews AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Inter:wght@100..900&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "on-secondary-fixed": "#001f26",
+                "surface-container-low": "#1c1b1d",
+                "on-error-container": "#ffdad6",
+                "secondary-fixed-dim": "#4cd7f6",
+                "background": "#131315",
+                "surface-container-high": "#2a2a2c",
+                "surface-container-lowest": "#0e0e10",
+                "surface-tint": "#c0c1ff",
+                "on-error": "#690005",
+                "tertiary-fixed-dim": "#ffb783",
+                "on-tertiary-fixed": "#301400",
+                "surface-container-highest": "#353437",
+                "surface": "#131315",
+                "on-secondary-fixed-variant": "#004e5c",
+                "tertiary": "#ffb783",
+                "surface-variant": "#353437",
+                "on-tertiary-fixed-variant": "#703700",
+                "primary-fixed": "#e1e0ff",
+                "outline": "#908fa0",
+                "on-background": "#e5e1e4",
+                "tertiary-fixed": "#ffdcc5",
+                "on-secondary": "#003640",
+                "on-primary-container": "#0d0096",
+                "on-surface-variant": "#c7c4d7",
+                "primary-container": "#8083ff",
+                "primary": "#c0c1ff",
+                "inverse-on-surface": "#313032",
+                "secondary-container": "#03b5d3",
+                "primary-fixed-dim": "#c0c1ff",
+                "error-container": "#93000a",
+                "surface-bright": "#39393b",
+                "tertiary-container": "#d97721",
+                "on-tertiary-container": "#452000",
+                "on-primary-fixed-variant": "#2f2ebe",
+                "inverse-surface": "#e5e1e4",
+                "error": "#ffb4ab",
+                "secondary": "#4cd7f6",
+                "secondary-fixed": "#acedff",
+                "on-surface": "#e5e1e4",
+                "on-primary-fixed": "#07006c",
+                "on-secondary-container": "#00424e",
+                "inverse-primary": "#494bd6",
+                "outline-variant": "#464554",
+                "surface-dim": "#131315",
+                "on-primary": "#1000a9",
+                "surface-container": "#201f22",
+                "on-tertiary": "#4f2500"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+            },
+            "spacing": {
+                "sm": "8px",
+                "lg": "24px",
+                "unit": "4px",
+                "xs": "4px",
+                "margin-desktop": "64px",
+                "gutter": "24px",
+                "xl": "40px",
+                "margin-mobile": "16px",
+                "md": "16px"
+            },
+            "fontFamily": {
+                "body-lg": ["Inter"],
+                "label-md": ["Geist"],
+                "display": ["Geist"],
+                "headline-md": ["Geist"],
+                "headline-lg": ["Geist"],
+                "label-sm": ["Geist"],
+                "body-sm": ["Inter"],
+                "body-md": ["Inter"],
+                "headline-lg-mobile": ["Geist"]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(24, 24, 27, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(70, 69, 84, 0.3);
+        }
+        .ai-border {
+            border: 1px solid transparent;
+            background: linear-gradient(#131315, #131315) padding-box,
+                        linear-gradient(to right, #c0c1ff, #4cd7f6) border-box;
+        }
+        body {
+            background-color: #131315;
+            color: #e5e1e4;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0e0e10; }
+        ::-webkit-scrollbar-thumb { background: #353437; border-radius: 10px; }
+    </style>
+</head>
+<body class="font-body-md text-on-background">
+<!-- Side Navigation Shell -->
+<nav class="fixed left-0 top-0 h-full w-[280px] bg-background/80 dark:bg-background/80 border-r border-outline-variant/30 backdrop-blur-xl flex flex-col py-lg z-[60]">
+<div class="px-lg mb-xl">
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary leading-tight">VeriNews AI</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mt-xs">Intelligence Suite</p>
+</div>
+<div class="flex-1 space-y-sm px-md">
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:bg-surface-container-high/50 transition-colors group" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:bg-surface-container-high/50 transition-colors group" href="#">
+<span class="material-symbols-outlined">troubleshoot</span>
+<span class="font-label-md text-label-md">Analyze</span>
+</a>
+<a class="flex items-center gap-md p-md rounded-lg text-primary dark:text-primary font-bold border-r-2 border-primary bg-surface-container-high/30 group" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-md text-label-md">Analytics</span>
+</a>
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:bg-surface-container-high/50 transition-colors group" href="#">
+<span class="material-symbols-outlined">assessment</span>
+<span class="font-label-md text-label-md">Reports</span>
+</a>
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:bg-surface-container-high/50 transition-colors group" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</div>
+<div class="mt-auto px-md">
+<div class="flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:bg-surface-container-high/50 transition-colors">
+<span class="material-symbols-outlined">dns</span>
+<span class="font-label-md text-label-md">System Health</span>
+</div>
+<div class="mt-lg p-md glass-panel rounded-xl flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container">person</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Admin User</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Standard Access</p>
+</div>
+</div>
+</div>
+</nav>
+<!-- Top Navigation Shell -->
+<header class="fixed top-0 right-0 z-50 flex justify-between items-center w-full px-lg h-16 ml-[280px] backdrop-blur-md border-b border-outline-variant/20 bg-background/10 dark:bg-background/10 pl-[304px]">
+<div class="flex items-center bg-surface-container-low px-md py-xs rounded-full border border-outline-variant/30 w-96">
+<span class="material-symbols-outlined text-on-surface-variant mr-sm">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-label-sm text-on-surface w-full" placeholder="Search analytics or reports..." type="text"/>
+</div>
+<div class="flex items-center gap-lg">
+<button class="relative text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute -top-1 -right-1 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">dark_mode</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-[280px] pt-24 px-lg pb-xl min-h-screen">
+<!-- Dashboard Header -->
+<div class="flex justify-between items-end mb-xl">
+<div>
+<h2 class="font-headline-lg text-headline-lg mb-xs">Analytics Overview</h2>
+<p class="text-on-surface-variant font-body-md">Real-time system performance and verdict distributions.</p>
+</div>
+<div class="flex gap-md">
+<button class="px-lg py-sm bg-surface-container-high hover:bg-surface-container-highest transition-colors rounded-lg border border-outline-variant/30 font-label-md text-label-md flex items-center gap-sm">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+                    Last 24 Hours
+                </button>
+<button class="px-lg py-sm bg-primary text-on-primary font-bold rounded-lg font-label-md text-label-md flex items-center gap-sm shadow-[0_0_20px_rgba(192,193,255,0.2)]">
+<span class="material-symbols-outlined">download</span>
+                    Export CSV
+                </button>
+</div>
+</div>
+<!-- Metrics Row -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-lg mb-xl">
+<div class="glass-panel p-lg rounded-xl">
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-sm uppercase tracking-wider">Total Analyses</p>
+<div class="flex items-baseline gap-sm">
+<h3 class="font-display text-display">1.2M</h3>
+<span class="text-secondary font-label-sm text-label-sm flex items-center">
+<span class="material-symbols-outlined text-sm">trending_up</span> 12%
+                    </span>
+</div>
+</div>
+<div class="glass-panel p-lg rounded-xl">
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-sm uppercase tracking-wider">Avg Confidence</p>
+<div class="flex items-baseline gap-sm">
+<h3 class="font-display text-display">94.2%</h3>
+<span class="text-secondary font-label-sm text-label-sm flex items-center">
+<span class="material-symbols-outlined text-sm">trending_up</span> 0.4%
+                    </span>
+</div>
+</div>
+<div class="glass-panel p-lg rounded-xl">
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-sm uppercase tracking-wider">Avg Latency</p>
+<div class="flex items-baseline gap-sm">
+<h3 class="font-display text-display">124ms</h3>
+<span class="text-error font-label-sm text-label-sm flex items-center">
+<span class="material-symbols-outlined text-sm">trending_down</span> 8ms
+                    </span>
+</div>
+</div>
+<div class="glass-panel p-lg rounded-xl">
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-sm uppercase tracking-wider">Cache Hit Rate</p>
+<div class="flex items-baseline gap-sm">
+<h3 class="font-display text-display">68%</h3>
+<span class="text-secondary font-label-sm text-label-sm flex items-center">
+<span class="material-symbols-outlined text-sm">trending_up</span> 4%
+                    </span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-lg mb-xl">
+<!-- Main Analytics Canvas -->
+<div class="col-span-12 lg:col-span-9 space-y-lg">
+<!-- Charts Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<!-- Verdict Distribution (Pie Replacement with Radial) -->
+<div class="glass-panel p-lg rounded-xl">
+<h4 class="font-label-md text-label-md mb-lg">Verdict Distribution</h4>
+<div class="relative h-64 w-full flex items-center justify-center">
+<!-- SVG Representation of Charts -->
+<svg class="w-48 h-48 -rotate-90" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="none" r="40" stroke="#1c1b1d" stroke-width="12"></circle>
+<circle cx="50" cy="50" fill="none" r="40" stroke="#4cd7f6" stroke-dasharray="251.2" stroke-dashoffset="62.8" stroke-width="12"></circle>
+<circle cx="50" cy="50" fill="none" r="40" stroke="#ffb4ab" stroke-dasharray="251.2" stroke-dashoffset="200" stroke-width="12"></circle>
+</svg>
+<div class="absolute text-center">
+<p class="font-headline-md text-headline-md">75%</p>
+<p class="text-on-surface-variant text-[10px] uppercase">Verified</p>
+</div>
+</div>
+<div class="flex justify-center gap-lg mt-md">
+<div class="flex items-center gap-sm">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<span class="text-label-sm">Verified (Real)</span>
+</div>
+<div class="flex items-center gap-sm">
+<div class="w-2 h-2 rounded-full bg-error"></div>
+<span class="text-label-sm">Fake (Alert)</span>
+</div>
+</div>
+</div>
+<!-- API Success Rates (Bar Chart style) -->
+<div class="glass-panel p-lg rounded-xl">
+<h4 class="font-label-md text-label-md mb-lg">API Success Rates</h4>
+<div class="space-y-md">
+<div>
+<div class="flex justify-between mb-xs">
+<span class="text-label-sm">Endpoint /verify</span>
+<span class="text-label-sm font-bold">99.9%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="bg-secondary h-full" style="width: 99.9%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between mb-xs">
+<span class="text-label-sm">Endpoint /ocr-scan</span>
+<span class="text-label-sm font-bold">94.2%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="bg-secondary h-full" style="width: 94.2%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between mb-xs">
+<span class="text-label-sm">Endpoint /batch-process</span>
+<span class="text-label-sm font-bold">88.5%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="bg-tertiary h-full" style="width: 88.5%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Line Chart Area (Claims Analyzed Over Time) -->
+<div class="glass-panel p-lg rounded-xl h-[400px]">
+<div class="flex justify-between items-center mb-xl">
+<h4 class="font-label-md text-label-md">Claims Analyzed (Last 30 Days)</h4>
+<div class="flex gap-md">
+<span class="flex items-center gap-sm text-label-sm">
+<span class="w-3 h-1 bg-primary"></span> Claims
+                            </span>
+</div>
+</div>
+<!-- Mock Line Chart -->
+<div class="relative w-full h-64 mt-lg">
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none">
+<path class="drop-shadow-[0_0_10px_rgba(192,193,255,0.4)]" d="M0,100 Q100,20 200,120 T400,40 T600,160 T800,20 T1000,100" fill="none" stroke="#c0c1ff" stroke-width="3"></path>
+<rect fill="url(#grid)" height="100%" width="100%" x="0" y="0"></rect>
+<defs>
+<pattern height="40" id="grid" patternunits="userSpaceOnUse" width="100">
+<path d="M 100 0 L 0 0 0 100" fill="none" stroke="#2a2a2c" stroke-width="1"></path>
+</pattern>
+</defs>
+</svg>
+</div>
+</div>
+<!-- Reports Table -->
+<div class="glass-panel rounded-xl overflow-hidden">
+<div class="p-lg border-b border-outline-variant/20 flex justify-between items-center">
+<h4 class="font-label-md text-label-md">Recent Reports</h4>
+<button class="text-primary font-label-sm hover:underline">View All</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-surface-container/30">
+<th class="px-lg py-md font-label-sm text-label-sm text-on-surface-variant">Report ID</th>
+<th class="px-lg py-md font-label-sm text-label-sm text-on-surface-variant">Timestamp</th>
+<th class="px-lg py-md font-label-sm text-label-sm text-on-surface-variant">Verdict</th>
+<th class="px-lg py-md font-label-sm text-label-sm text-on-surface-variant">Confidence</th>
+<th class="px-lg py-md font-label-sm text-label-sm text-on-surface-variant text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+<tr class="hover:bg-surface-container-high/20 transition-colors">
+<td class="px-lg py-md font-label-md text-primary">#R-92841</td>
+<td class="px-lg py-md text-label-sm">2024-11-21 14:23</td>
+<td class="px-lg py-md">
+<span class="px-sm py-1 bg-secondary/10 text-secondary text-[10px] uppercase font-bold rounded-full border border-secondary/20">Verified</span>
+</td>
+<td class="px-lg py-md font-label-md">98.4%</td>
+<td class="px-lg py-md text-right">
+<div class="flex justify-end gap-md">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">visibility</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">download</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-high/20 transition-colors">
+<td class="px-lg py-md font-label-md text-primary">#R-92839</td>
+<td class="px-lg py-md text-label-sm">2024-11-21 13:58</td>
+<td class="px-lg py-md">
+<span class="px-sm py-1 bg-error/10 text-error text-[10px] uppercase font-bold rounded-full border border-error/20">False</span>
+</td>
+<td class="px-lg py-md font-label-md">92.1%</td>
+<td class="px-lg py-md text-right">
+<div class="flex justify-end gap-md">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">visibility</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">download</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-high/20 transition-colors">
+<td class="px-lg py-md font-label-md text-primary">#R-92835</td>
+<td class="px-lg py-md text-label-sm">2024-11-21 12:44</td>
+<td class="px-lg py-md">
+<span class="px-sm py-1 bg-tertiary/10 text-tertiary text-[10px] uppercase font-bold rounded-full border border-tertiary/20">Questionable</span>
+</td>
+<td class="px-lg py-md font-label-md">74.5%</td>
+<td class="px-lg py-md text-right">
+<div class="flex justify-end gap-md">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">visibility</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">download</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Side Information Column -->
+<div class="col-span-12 lg:col-span-3 space-y-lg">
+<!-- System Status -->
+<div class="ai-border p-lg rounded-xl">
+<h4 class="font-label-md text-label-md mb-lg">System Performance</h4>
+<div class="space-y-lg">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-md">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-sm text-secondary">database</span>
+</div>
+<span class="text-label-sm">Redis Cluster</span>
+</div>
+<span class="flex items-center gap-xs text-[10px] font-bold text-secondary">
+<span class="w-1.5 h-1.5 bg-secondary rounded-full animate-pulse"></span> ACTIVE
+                            </span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-md">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-sm text-secondary">camera</span>
+</div>
+<span class="text-label-sm">OCR Vision Engine</span>
+</div>
+<span class="flex items-center gap-xs text-[10px] font-bold text-secondary">
+<span class="w-1.5 h-1.5 bg-secondary rounded-full animate-pulse"></span> ACTIVE
+                            </span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-md">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-sm text-secondary">psychology</span>
+</div>
+<span class="text-label-sm">RoBERTa NLP</span>
+</div>
+<span class="flex items-center gap-xs text-[10px] font-bold text-secondary">
+<span class="w-1.5 h-1.5 bg-secondary rounded-full animate-pulse"></span> ACTIVE
+                            </span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-md">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-sm text-tertiary">api</span>
+</div>
+<span class="text-label-sm">Social Feed APIs</span>
+</div>
+<span class="flex items-center gap-xs text-[10px] font-bold text-tertiary">
+<span class="w-1.5 h-1.5 bg-tertiary rounded-full"></span> DEGRADED
+                            </span>
+</div>
+</div>
+</div>
+<!-- AI Insight Panel -->
+<div class="bg-surface-container-low p-lg rounded-xl border border-outline-variant/30">
+<div class="flex items-center gap-sm mb-md">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<h4 class="font-label-md text-label-md text-primary">AI Anomalies</h4>
+</div>
+<p class="text-label-sm text-on-surface-variant leading-relaxed">
+                        Detected 14% increase in synthetic image generation signatures within the last 4 hours. Recommend enabling higher-depth forensic scanning for the Asia-Pacific region.
+                    </p>
+<button class="mt-lg w-full py-sm bg-primary-container/20 text-primary border border-primary/30 rounded-lg font-label-sm hover:bg-primary-container/30 transition-colors">
+                        Investigate Surge
+                    </button>
+</div>
+<!-- Promo/Visual Aspect -->
+<div class="relative overflow-hidden rounded-xl h-64">
+<img class="w-full h-full object-cover" data-alt="A futuristic cybersecurity operation center with holographic data visualizations showing global information flows. The environment is dark and technical, lit by glowing cyan and indigo displays. Multiple monitors show complex code and neural network architectures in a minimalist, high-stakes intelligence environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA75Yt1a5mhrTxEYvyd9U2ODJ-y46s-qe_DVDWIO-RBXQrCCuIY8v3dcPw_3mnrdtwqnyAxv6YctAwes-SK5jpXyoiN9ksO8iR-yTFAVrtCETN0rHIFMxl8VHK3KFr2IHnKpoRvWOA-KOKeIZiA2rBJPfasZiXQmafPeZ38_LNMWWsnOC2X54Zxb_yfNjO12bc9yKvusg5l2Q2gNp1SBy4FCMYsRlYoEeNdwiuxt2iqA3uJxvdnGZK9Y8AgNV5WOXzvFSVzTYs2Lw"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+<div class="absolute bottom-md left-md right-md">
+<p class="font-label-sm font-bold text-white">Live Global Verification Node</p>
+<p class="text-[10px] text-on-surface-variant">Active connections: 4,892</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Shell -->
+<footer class="flex justify-between items-center px-margin-desktop py-md ml-[280px] bg-surface-container-lowest dark:bg-surface-container-lowest border-t border-outline-variant/10 w-full mt-auto">
+<p class="font-label-sm text-label-sm text-on-surface-variant">© 2024 VeriNews AI. All rights reserved.</p>
+<div class="flex gap-lg">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-secondary transition-colors" href="#">GitHub</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-secondary transition-colors" href="#">API Status</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-secondary transition-colors" href="#">Documentation</a>
+</div>
+</footer>
+<!-- Micro-interaction Scripts -->
+<script>
+        // Simple active state scaling interaction for navigation items
+        const navItems = document.querySelectorAll('nav a, nav .cursor-pointer');
+        navItems.forEach(item => {
+            item.addEventListener('mousedown', () => {
+                item.classList.add('scale-[0.98]');
+            });
+            item.addEventListener('mouseup', () => {
+                item.classList.remove('scale-[0.98]');
+            });
+            item.addEventListener('mouseleave', () => {
+                item.classList.remove('scale-[0.98]');
+            });
+        });
+
+        // Search bar focus effect
+        const searchInput = document.querySelector('header input');
+        const searchContainer = searchInput.parentElement;
+        searchInput.addEventListener('focus', () => {
+            searchContainer.classList.add('ring-2', 'ring-primary/20', 'border-primary/50');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchContainer.classList.remove('ring-2', 'ring-primary/20', 'border-primary/50');
+        });
+    </script>
+</body></html>

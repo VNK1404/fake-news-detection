@@ -27,6 +27,7 @@ from fake_news_module.explainability.explanation_engine import generate_explanat
 from fake_news_module.core.decision_engine import compute_score, final_decision
 from fake_news_module.analytics import get_analytics_service
 from fake_news_module.cache import get_cache_manager
+from fake_news_module.reporting.report_generator import build_report_payload
 from fake_news_module.config import ROBERTA_ENABLED, SIMILARITY_ENABLED
 
 # Phase 1: RoBERTa ML inference
@@ -296,6 +297,7 @@ def fake_news_pipeline(file_path: str) -> Dict[str, Any]:
         "final_decision": decision,
         "confidence":     confidence,
     }
+    _ = build_report_payload(result)
     cache.set_pipeline_result(claim, result)
     get_analytics_service().record_analysis(
         result,

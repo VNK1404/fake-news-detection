@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VeriNews AI | Results Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            background-color: #09090b;
+            color: #e5e1e4;
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(24, 24, 27, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid #27272a;
+        }
+        .ai-insight-border {
+            border: 1px solid transparent;
+            background: linear-gradient(#18181b, #18181b) padding-box,
+                        linear-gradient(to right, #c0c1ff, #4cd7f6) border-box;
+        }
+        .glow-indigo {
+            box-shadow: 0 0 20px 2px rgba(99, 101, 241, 0.1);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .gauge-container {
+            position: relative;
+            width: 200px;
+            height: 100px;
+            overflow: hidden;
+        }
+        .gauge-body {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: #1c1b1d;
+            position: relative;
+            border: 12px solid #27272a;
+        }
+        .gauge-fill {
+            position: absolute;
+            top: -12px;
+            left: -12px;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 12px solid transparent;
+            border-top-color: #ffb4ab; /* Error color for Fake */
+            border-right-color: #ffb4ab;
+            transform: rotate(45deg);
+        }
+        @keyframes pulse-cyan {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+        .skeleton-pulse {
+            animation: pulse-cyan 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary-fixed": "#001f26",
+                      "surface-container-low": "#1c1b1d",
+                      "on-error-container": "#ffdad6",
+                      "secondary-fixed-dim": "#4cd7f6",
+                      "background": "#09090b",
+                      "surface-container-high": "#2a2a2c",
+                      "surface-container-lowest": "#0e0e10",
+                      "surface-tint": "#c0c1ff",
+                      "on-error": "#690005",
+                      "tertiary-fixed-dim": "#ffb783",
+                      "on-tertiary-fixed": "#301400",
+                      "surface-container-highest": "#353437",
+                      "surface": "#131315",
+                      "on-secondary-fixed-variant": "#004e5c",
+                      "tertiary": "#ffb783",
+                      "surface-variant": "#353437",
+                      "on-tertiary-fixed-variant": "#703700",
+                      "primary-fixed": "#e1e0ff",
+                      "outline": "#908fa0",
+                      "on-background": "#e5e1e4",
+                      "tertiary-fixed": "#ffdcc5",
+                      "on-secondary": "#003640",
+                      "on-primary-container": "#0d0096",
+                      "on-surface-variant": "#c7c4d7",
+                      "primary-container": "#8083ff",
+                      "primary": "#c0c1ff",
+                      "inverse-on-surface": "#313032",
+                      "secondary-container": "#03b5d3",
+                      "primary-fixed-dim": "#c0c1ff",
+                      "error-container": "#93000a",
+                      "surface-bright": "#39393b",
+                      "tertiary-container": "#d97721",
+                      "on-tertiary-container": "#452000",
+                      "on-primary-fixed-variant": "#2f2ebe",
+                      "inverse-surface": "#e5e1e4",
+                      "error": "#ffb4ab",
+                      "secondary": "#4cd7f6",
+                      "secondary-fixed": "#acedff",
+                      "on-surface": "#e5e1e4",
+                      "on-primary-fixed": "#07006c",
+                      "on-secondary-container": "#00424e",
+                      "inverse-primary": "#494bd6",
+                      "outline-variant": "#464554",
+                      "surface-dim": "#131315",
+                      "on-primary": "#1000a9",
+                      "surface-container": "#201f22",
+                      "on-tertiary": "#4f2500"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "sm": "8px",
+                      "lg": "24px",
+                      "unit": "4px",
+                      "xs": "4px",
+                      "margin-desktop": "64px",
+                      "gutter": "24px",
+                      "xl": "40px",
+                      "margin-mobile": "16px",
+                      "md": "16px"
+              },
+              "fontFamily": {
+                      "body-lg": ["Inter"],
+                      "label-md": ["Geist"],
+                      "display": ["Geist"],
+                      "headline-md": ["Geist"],
+                      "headline-lg": ["Geist"],
+                      "label-sm": ["Geist"],
+                      "body-sm": ["Inter"],
+                      "body-md": ["Inter"],
+                      "headline-lg-mobile": ["Geist"]
+              },
+              "fontSize": {
+                      "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "label-md": ["14px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                      "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "label-sm": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                      "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "600"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="flex min-h-screen bg-background selection:bg-primary/30">
+<!-- Sidebar -->
+<aside class="fixed left-0 top-0 h-full w-[280px] bg-background/80 dark:bg-background/80 border-r border-outline-variant/30 backdrop-blur-xl z-50 flex flex-col py-lg">
+<div class="px-lg mb-xl">
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary tracking-tight">VeriNews AI</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant opacity-70">Intelligence Suite</p>
+</div>
+<nav class="flex-1 space-y-unit">
+<a class="flex items-center px-lg py-md text-primary dark:text-primary font-bold border-r-2 border-primary hover:bg-surface-container-high/50 transition-colors group" href="#">
+<span class="material-symbols-outlined mr-md">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center px-lg py-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high/50 transition-colors group" href="#">
+<span class="material-symbols-outlined mr-md">troubleshoot</span>
+<span class="font-label-md text-label-md">Analyze</span>
+</a>
+<a class="flex items-center px-lg py-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high/50 transition-colors group" href="#">
+<span class="material-symbols-outlined mr-md">analytics</span>
+<span class="font-label-md text-label-md">Analytics</span>
+</a>
+<a class="flex items-center px-lg py-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high/50 transition-colors group" href="#">
+<span class="material-symbols-outlined mr-md">assessment</span>
+<span class="font-label-md text-label-md">Reports</span>
+</a>
+<a class="flex items-center px-lg py-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high/50 transition-colors group" href="#">
+<span class="material-symbols-outlined mr-md">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+<div class="mt-auto px-lg pt-lg border-t border-outline-variant/10">
+<a class="flex items-center py-md text-on-surface-variant hover:text-secondary transition-colors" href="#">
+<span class="material-symbols-outlined mr-md">dns</span>
+<span class="font-label-sm text-label-sm">System Health</span>
+</a>
+<div class="mt-md flex items-center gap-md">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center border border-outline-variant/30">
+<img alt="VeriNews AI Logo" class="w-6 h-6" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvnhaNoKKkenlGE-Tz1_e3hMaUVgQVIGI2za0ZgFXqlJ-uhh87Jy81nGII_CSUJSSvqEBOG_NvRdq4M8TmmxGgzkaoSq27IfIHW1Q3ExHXHBAPGul7qr9LS0j0_WxAjQ5Fjf7z1KAY4d_xL81R_xLnYT_rpkWuWt_OcrUWEN2dAzIbEwCH9qJYIdYx9m4_8w8hHsxiSyeeXnfSfVFssiDhyRYtQ4rSV47apjsbMRguWAhTHcijsFKcS6KoWzPKwhqzHEQnZgGjwQ"/>
+</div>
+<div>
+<p class="font-label-sm text-label-sm font-bold text-on-surface">V-Node 01</p>
+<p class="text-[10px] text-secondary">Active Cluster</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 ml-[280px] min-h-screen flex flex-col">
+<!-- Top Navigation -->
+<header class="fixed top-0 right-0 z-40 bg-background/10 dark:bg-background/10 backdrop-blur-md border-b border-outline-variant/20 flex justify-between items-center w-[calc(100%-280px)] px-lg h-16">
+<div class="flex items-center flex-1 max-w-xl">
+<div class="relative w-full group">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-lowest/50 border border-outline-variant/30 rounded-lg py-sm pl-xl pr-md font-label-md text-on-surface focus:ring-1 focus:ring-secondary focus:border-secondary transition-all outline-none" placeholder="Search analysis history..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-lg ml-lg">
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center">
+<span class="material-symbols-outlined">dark_mode</span>
+</button>
+<div class="h-8 w-[1px] bg-outline-variant/20"></div>
+<div class="flex items-center gap-md">
+<div class="text-right hidden sm:block">
+<p class="font-label-md text-label-md text-on-surface">Admin User</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Security Tier 1</p>
+</div>
+<img alt="User profile avatar" class="w-9 h-9 rounded-lg border border-outline-variant/30 bg-surface-container-high" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAax0ZlxJvxA13EF8w_RHnchCOQGFDLrmSCS6Uhdgc0Rm0CzhiX1BROGklxRylXwIIPRQFbxPPbpy0EesCrbtENk40O3TUhV_iptQEc9d3fPj7jvsTrhfDnS6OZ2qYTfWe_fFfCo3FucQA2d_bruwz4Pa_AxhNZmbyg2R_5YNld8FZTGH8R4_nvK7LjsYyX77Gyise-F1PvX6NIpx1Qm3mcEW7rsE-hupEoy18YR6Gqyi3j4fswBrBU_eYHhNx_6VJDD59Ij97YxQ"/>
+</div>
+</div>
+</header>
+<!-- Dashboard Body -->
+<div class="mt-16 p-lg flex-1 overflow-y-auto">
+<!-- Breadcrumbs / Page Header -->
+<div class="flex justify-between items-end mb-lg">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Analysis Results</h2>
+<p class="font-body-sm text-on-surface-variant">Scan ID: VN-94421-ALPHA • Global Threat Index: High</p>
+</div>
+<div class="flex gap-md">
+<button class="px-md py-sm rounded-lg border border-outline-variant/30 font-label-md hover:bg-surface-container-high transition-colors flex items-center gap-sm">
+<span class="material-symbols-outlined text-[18px]">share</span> Share
+                    </button>
+<button class="px-md py-sm rounded-lg bg-primary text-on-primary font-label-md hover:bg-primary-container transition-colors flex items-center gap-sm">
+<span class="material-symbols-outlined text-[18px]">download</span> Export PDF
+                    </button>
+</div>
+</div>
+<!-- Main Bento Grid -->
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Verdict Section -->
+<div class="col-span-12 lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- Verdict Card -->
+<div class="glass-panel p-lg rounded-xl glow-indigo flex flex-col justify-center items-center relative overflow-hidden group">
+<!-- Animated background detail -->
+<div class="absolute inset-0 opacity-5 pointer-events-none">
+<!-- STITCH_SHADER_START:ANIMATION_1 class="w-full h-full" -->
+<div class="w-full h-full" style="display:block;">
+<canvas id="shader-canvas-ANIMATION_1" style="display:block;width:100%;height:100%"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('shader-canvas-ANIMATION_1');
+
+  // Sync the WebGL drawing-buffer size with the CSS-driven layout size.
+  // This fires on initial layout and whenever the element is resized.
+  function syncSize() {
+    const w = canvas.clientWidth  || 1280;
+    const h = canvas.clientHeight || 720;
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width  = w;
+      canvas.height = h;
+    }
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(syncSize).observe(canvas);
+  }
+  syncSize();
+
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return;
+  const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+  const fs = `precision highp float;
+uniform float u_time;
+uniform vec2 u_resolution;
+varying vec2 v_texCoord;
+
+float hash(vec2 p) {
+    p = fract(p * vec2(123.34, 456.21));
+    p += dot(p, p + 45.32);
+    return fract(p.x * p.y);
+}
+
+void main() {
+    vec2 uv = v_texCoord;
+    vec2 centered_uv = (uv - 0.5) * (u_resolution.x / u_resolution.y);
+    
+    // Deep background color
+    vec3 color = vec3(0.02, 0.02, 0.05);
+    
+    // Subtle shifting gradients
+    float g1 = sin(uv.x * 2.0 + u_time * 0.5) * 0.5 + 0.5;
+    float g2 = cos(uv.y * 2.0 - u_time * 0.3) * 0.5 + 0.5;
+    color += vec3(0.02, 0.05, 0.1) * g1;
+    color += vec3(0.05, 0.02, 0.08) * g2;
+    
+    // Animated particles
+    for(float i = 0.0; i < 40.0; i++) {
+        float h = hash(vec2(i, 123.45));
+        float t = u_time * (0.1 + h * 0.2);
+        vec2 p = vec2(
+            sin(t + h * 6.28) * 0.8,
+            cos(t * 0.7 + h * 6.28) * 0.5
+        );
+        float d = length(centered_uv - p);
+        float size = 0.002 + h * 0.003;
+        float brightness = smoothstep(size, 0.0, d) * (0.3 + 0.7 * sin(u_time + h * 10.0));
+        color += vec3(0.4, 0.6, 1.0) * brightness;
+    }
+    
+    // Subtle vignetting
+    float vignette = 1.0 - length(uv - 0.5) * 1.2;
+    color *= clamp(vignette, 0.5, 1.0);
+    
+    gl_FragColor = vec4(color, 1.0);
+}`;
+  function cs(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const pos = gl.getAttribLocation(prog, 'a_position');
+  gl.enableVertexAttribArray(pos);
+  gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+  const uTime = gl.getUniformLocation(prog, 'u_time');
+  const uRes = gl.getUniformLocation(prog, 'u_resolution');
+  const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+
+  // u_mouse is in pixel coordinates matching u_resolution (ShaderToy convention).
+  // Shaders that need normalized coords should use: u_mouse / u_resolution.
+  let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+  window.addEventListener('mousemove', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width && rect.height) {
+      const nx = (event.clientX - rect.left) / rect.width;
+      const ny = 1.0 - (event.clientY - rect.top) / rect.height;
+      mouse.x = nx * canvas.width;
+      mouse.y = ny * canvas.height;
+    }
+  });
+
+  function render(t) {
+    if (typeof ResizeObserver === 'undefined') syncSize();
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    if (uTime) gl.uniform1f(uTime, t * 0.001);
+    if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+    if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(render);
+  }
+  render(0);
+})();
+</script>
+</div>
+<!-- STITCH_SHADER_END:ANIMATION_1 -->
+</div>
+<div class="relative z-10 flex flex-col items-center">
+<div class="mb-sm">
+<span class="px-md py-1 rounded-full bg-error/10 text-error font-label-sm border border-error/20 flex items-center gap-sm">
+<span class="w-2 h-2 rounded-full bg-error animate-pulse"></span> FAKE
+                                </span>
+</div>
+<div class="gauge-container mt-md">
+<div class="gauge-body"></div>
+<div class="gauge-fill" style="transform: rotate(155deg);"></div> <!-- Approx 94% -->
+<div class="absolute inset-0 flex flex-col items-center justify-end pb-2">
+<span class="font-display text-[44px] leading-none text-error">94%</span>
+<span class="font-label-sm text-on-surface-variant">Confidence</span>
+</div>
+</div>
+<p class="font-headline-md text-headline-md text-on-surface mt-lg text-center">Highly Improbable</p>
+<p class="font-body-sm text-on-surface-variant text-center max-w-[240px] mt-sm">Significant semantic inconsistencies and source manipulation detected.</p>
+</div>
+</div>
+<!-- Source Credibility -->
+<div class="glass-panel p-lg rounded-xl flex flex-col">
+<div class="flex justify-between items-start mb-lg">
+<h3 class="font-label-md text-label-md font-bold text-primary">Source Credibility</h3>
+<span class="material-symbols-outlined text-secondary">verified_user</span>
+</div>
+<div class="flex items-center gap-lg mb-xl">
+<div class="relative w-24 h-24 flex items-center justify-center">
+<svg class="w-full h-full" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="none" r="45" stroke="#27272a" stroke-width="8"></circle>
+<circle cx="50" cy="50" fill="none" r="45" stroke="#4cd7f6" stroke-dasharray="282.7" stroke-dashoffset="197.9" stroke-linecap="round" stroke-width="8"></circle>
+</svg>
+<span class="absolute font-display text-headline-md text-on-surface">30</span>
+</div>
+<div>
+<p class="font-headline-md text-on-surface">Low Trust</p>
+<p class="font-label-sm text-on-surface-variant">Domain: the-wire-news.net</p>
+</div>
+</div>
+<div class="space-y-md">
+<div class="flex justify-between font-label-sm">
+<span class="text-on-surface-variant">Domain Age</span>
+<span class="text-on-surface">14 Days</span>
+</div>
+<div class="h-1 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-error w-1/12"></div>
+</div>
+<div class="flex justify-between font-label-sm">
+<span class="text-on-surface-variant">Hosting Provider</span>
+<span class="text-on-surface">CloudFlare (Obscured)</span>
+</div>
+<div class="h-1 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-secondary-container w-1/2"></div>
+</div>
+</div>
+</div>
+<!-- AI Analysis Card: RoBERTa -->
+<div class="glass-panel p-lg rounded-xl col-span-1 md:col-span-2">
+<div class="flex justify-between items-center mb-lg">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary">psychology</span>
+<h3 class="font-label-md text-label-md font-bold">RoBERTa Large Prediction</h3>
+</div>
+<div class="flex items-center gap-sm font-label-sm text-secondary">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+                                Neural Engine v4.2
+                            </div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+<div class="p-md bg-surface-container-lowest/30 rounded-lg border border-outline-variant/20">
+<p class="font-label-sm text-on-surface-variant mb-xs">Class: False</p>
+<div class="flex items-end justify-between">
+<span class="font-display text-headline-md text-on-surface">0.982</span>
+<span class="material-symbols-outlined text-error mb-1">trending_up</span>
+</div>
+</div>
+<div class="p-md bg-surface-container-lowest/30 rounded-lg border border-outline-variant/20">
+<p class="font-label-sm text-on-surface-variant mb-xs">Class: Neutral</p>
+<div class="flex items-end justify-between">
+<span class="font-display text-headline-md text-on-surface">0.012</span>
+<span class="material-symbols-outlined text-on-surface-variant mb-1">remove</span>
+</div>
+</div>
+<div class="p-md bg-surface-container-lowest/30 rounded-lg border border-outline-variant/20">
+<p class="font-label-sm text-on-surface-variant mb-xs">Class: True</p>
+<div class="flex items-end justify-between">
+<span class="font-display text-headline-md text-on-surface">0.006</span>
+<span class="material-symbols-outlined text-secondary mb-1">trending_down</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Sidebar Column: Metadata & Semantic Similarity -->
+<div class="col-span-12 lg:col-span-4 space-y-gutter">
+<!-- Metadata Panel -->
+<div class="glass-panel p-lg rounded-xl">
+<h3 class="font-label-md text-label-md font-bold mb-md">Engine Stats</h3>
+<div class="space-y-md">
+<div class="flex justify-between items-center p-sm rounded-lg bg-surface-container-lowest/50 border border-outline-variant/20">
+<div class="flex items-center gap-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">timer</span>
+<span class="font-label-sm">Processing Time</span>
+</div>
+<span class="font-label-md text-secondary">1.2s</span>
+</div>
+<div class="flex justify-between items-center p-sm rounded-lg bg-surface-container-lowest/50 border border-outline-variant/20">
+<div class="flex items-center gap-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">database</span>
+<span class="font-label-sm">Cache Status</span>
+</div>
+<span class="font-label-md text-on-surface">HIT (L1)</span>
+</div>
+<div class="flex justify-between items-center p-sm rounded-lg bg-surface-container-lowest/50 border border-outline-variant/20">
+<div class="flex items-center gap-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">public</span>
+<span class="font-label-sm">API Coverage</span>
+</div>
+<span class="font-label-md text-on-surface">100%</span>
+</div>
+</div>
+</div>
+<!-- Semantic Similarity List -->
+<div class="glass-panel p-lg rounded-xl flex flex-col">
+<h3 class="font-label-md text-label-md font-bold mb-lg">Semantic Similarity (Top 5)</h3>
+<div class="space-y-md flex-1">
+<div class="group cursor-help">
+<div class="flex justify-between mb-xs">
+<p class="font-label-sm text-on-surface truncate pr-md">Claim: Cyber attack in Berlin verified...</p>
+<span class="font-label-sm text-secondary">0.96</span>
+</div>
+<div class="h-1 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[96%]"></div>
+</div>
+</div>
+<div class="group cursor-help">
+<div class="flex justify-between mb-xs">
+<p class="font-label-sm text-on-surface truncate pr-md">Investigation: Power grid failure causes...</p>
+<span class="font-label-sm text-secondary">0.84</span>
+</div>
+<div class="h-1 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[84%]"></div>
+</div>
+</div>
+<div class="group cursor-help">
+<div class="flex justify-between mb-xs">
+<p class="font-label-sm text-on-surface truncate pr-md">Official Report: Maintenance in sector 4...</p>
+<span class="font-label-sm text-on-surface-variant">0.62</span>
+</div>
+<div class="h-1 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-outline w-[62%]"></div>
+</div>
+</div>
+<div class="group cursor-help">
+<div class="flex justify-between mb-xs">
+<p class="font-label-sm text-on-surface truncate pr-md">Rumor: Energy supply shortage news...</p>
+<span class="font-label-sm text-on-surface-variant">0.45</span>
+</div>
+<div class="h-1 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-outline w-[45%]"></div>
+</div>
+</div>
+<div class="group cursor-help">
+<div class="flex justify-between mb-xs">
+<p class="font-label-sm text-on-surface truncate pr-md">Economic Impact of localized outages...</p>
+<span class="font-label-sm text-on-surface-variant">0.21</span>
+</div>
+<div class="h-1 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-outline w-[21%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Fact Verification API Status -->
+<div class="glass-panel p-lg rounded-xl">
+<h3 class="font-label-md text-label-md font-bold mb-md">Fact-Check Stream</h3>
+<div class="space-y-sm">
+<div class="flex items-center justify-between p-sm rounded-lg border border-outline-variant/10">
+<span class="font-label-sm text-on-surface">Google Fact Check</span>
+<span class="px-sm py-0.5 rounded-full bg-secondary/10 text-secondary text-[10px] font-bold border border-secondary/20 uppercase">Connected</span>
+</div>
+<div class="flex items-center justify-between p-sm rounded-lg border border-outline-variant/10">
+<span class="font-label-sm text-on-surface">NewsAPI Insight</span>
+<span class="px-sm py-0.5 rounded-full bg-secondary/10 text-secondary text-[10px] font-bold border border-secondary/20 uppercase">Connected</span>
+</div>
+<div class="flex items-center justify-between p-sm rounded-lg border border-outline-variant/10">
+<span class="font-label-sm text-on-surface">Guardian Open Platform</span>
+<span class="px-sm py-0.5 rounded-full bg-tertiary/10 text-tertiary text-[10px] font-bold border border-tertiary/20 uppercase">Syncing</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Explainability Section -->
+<div class="col-span-12">
+<div class="ai-insight-border p-lg rounded-xl bg-surface-container-lowest/40">
+<div class="flex items-center gap-md mb-lg">
+<span class="material-symbols-outlined text-primary">auto_awesome</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">Evidence Analysis &amp; Explainability</h3>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-xl">
+<div>
+<p class="font-body-md text-on-surface mb-lg leading-relaxed">
+                                    The AI engine has flagged this claim as <span class="text-error font-bold">highly likely to be false</span>. The primary indicators include a stark contrast between the emotional language used in the source versus factual reports from verified outlets. Furthermore, the claim's origin—a 14-day-old domain—shows patterns typical of coordinated disinformation campaigns. 
+                                </p>
+<p class="font-body-md text-on-surface leading-relaxed">
+                                    Fact-check validation from Google and NewsAPI confirms that no reputable source has reported on the alleged "Berlin Cyber Attack" within the timestamped window provided. 
+                                </p>
+</div>
+<div class="space-y-lg bg-surface-container/30 p-lg rounded-xl border border-outline-variant/20">
+<h4 class="font-label-md text-label-md font-bold text-on-surface-variant uppercase tracking-widest">Confidence Breakdown</h4>
+<div class="space-y-md">
+<div>
+<div class="flex justify-between font-label-sm mb-xs">
+<span>RoBERTa Neural Score</span>
+<span class="text-primary">98.2%</span>
+</div>
+<div class="h-2 bg-surface-container-high rounded-full">
+<div class="h-full bg-primary w-[98.2%] rounded-full shadow-[0_0_8px_#c0c1ff]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-sm mb-xs">
+<span>Similarity Index</span>
+<span class="text-secondary">96.0%</span>
+</div>
+<div class="h-2 bg-surface-container-high rounded-full">
+<div class="h-full bg-secondary w-[96%] rounded-full shadow-[0_0_8px_#4cd7f6]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-sm mb-xs">
+<span>Fact Check API Density</span>
+<span class="text-tertiary">05.0%</span>
+</div>
+<div class="h-2 bg-surface-container-high rounded-full">
+<div class="h-full bg-tertiary w-[5%] rounded-full"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-sm mb-xs">
+<span>Source Trust Score</span>
+<span class="text-error">30.0%</span>
+</div>
+<div class="h-2 bg-surface-container-high rounded-full">
+<div class="h-full bg-error w-[30%] rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Skeleton Section (Visual filler/AI activity feel) -->
+<div class="col-span-12 grid grid-cols-1 md:grid-cols-4 gap-gutter mb-xl">
+<div class="h-24 glass-panel rounded-xl skeleton-pulse border border-secondary/10"></div>
+<div class="h-24 glass-panel rounded-xl skeleton-pulse border border-secondary/10" style="animation-delay: 0.2s"></div>
+<div class="h-24 glass-panel rounded-xl skeleton-pulse border border-secondary/10" style="animation-delay: 0.4s"></div>
+<div class="h-24 glass-panel rounded-xl skeleton-pulse border border-secondary/10" style="animation-delay: 0.6s"></div>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<footer class="w-full mt-auto flex justify-between items-center px-margin-desktop py-md bg-surface-container-lowest dark:bg-surface-container-lowest border-t border-outline-variant/10">
+<div class="flex items-center gap-lg">
+<p class="font-label-md text-label-md font-bold text-on-surface">VeriNews AI</p>
+<p class="font-label-sm text-label-sm text-secondary dark:text-secondary">© 2024 VeriNews AI. All rights reserved.</p>
+</div>
+<div class="flex items-center gap-xl">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-secondary transition-colors" href="#">GitHub</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-secondary transition-colors" href="#">API Status</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-secondary transition-colors" href="#">Documentation</a>
+</div>
+</footer>
+</main>
+<script>
+        // Simple Micro-interactions
+        document.querySelectorAll('.glass-panel').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-2px)';
+                card.style.transition = 'transform 0.3s ease';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body></html>
