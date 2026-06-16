@@ -1,0 +1,47 @@
+## Project Overview - Fake News Detection Engine
+
+**Root folder:** `d:/fake-news-detection`
+
+### Current Integration Architecture
+
+The v0.9.0 Integration Hardening release stabilizes Phases 1-4:
+
+1. OCR extracts text from uploaded images and PDFs.
+2. Text cleaning and validation prepare the extracted content.
+3. Claim extraction selects the main claim.
+4. RoBERTa performs local ML classification.
+5. FAISS retrieves semantically similar past claims.
+6. Google Fact Check, NewsAPI, and The Guardian provide external evidence.
+7. Source credibility scoring evaluates domains found in claim/API evidence.
+8. Explainability builds reasons, evidence, and confidence breakdown.
+9. The decision engine computes the final weighted score.
+10. Flask returns final JSON for frontend rendering.
+
+### Active Signals
+
+| Signal | Module | Purpose |
+| --- | --- | --- |
+| RoBERTa | `fake_news_module/ml/` | Local transformer classifier |
+| FAISS similarity | `fake_news_module/similarity/` | Semantic retrieval over indexed claims |
+| Google Fact Check | `fake_news_module/apis/google_api.py` | Fact-check evidence |
+| NewsAPI | `fake_news_module/apis/news_api.py` | News coverage and article URLs |
+| Guardian | `fake_news_module/apis/guardian_api.py` | Reputable publisher coverage |
+| Source credibility | `fake_news_module/source_scoring/` | Domain credibility signal |
+| Explainability | `fake_news_module/explainability/` | Verdict reasons and evidence |
+
+### Core Files
+
+| File | Role |
+| --- | --- |
+| `fake_news_module/core/pipeline.py` | End-to-end orchestration |
+| `fake_news_module/core/decision_engine.py` | Weighted scoring and verdict thresholds |
+| `fake_news_module/core/normalization.py` | Label-to-score normalization |
+| `templates/index.html` | Upload UI and verdict rendering |
+| `app.py` | Flask web entry point |
+| `main.py` | CLI entry point |
+
+### Artifact Policy
+
+Large model, checkpoint, dataset, and FAISS index artifacts are ignored by
+`.gitignore`. Keep production artifacts in external storage or rebuild them
+through documented training/indexing steps before release.
