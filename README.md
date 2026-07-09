@@ -1,5 +1,11 @@
 # Multi-Modal Fake News Detection Platform
 
+![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=next.js)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Contributions Welcome](https://img.shields.io/badge/Contributions-Welcome-brightgreen)
+![Status](https://img.shields.io/badge/Status-Active-success)
+
 An enterprise-ready, AI-driven digital evidence integrity monitoring system. This platform evaluates claims extracted from uploaded documents (PDFs and images) through multiple parallel local and remote verification channels. It combines a robust Python/Flask AI backend with a modern Next.js/TypeScript dashboard user interface.
 
 ---
