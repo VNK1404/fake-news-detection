@@ -145,6 +145,22 @@ To run the entire system locally, follow the steps below to set up both the back
 
 ---
 
+## 🔐 Environment Variables
+
+All API keys must be placed in a `.env` file inside the `backend/` directory. Never commit your `.env` file.
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `GEMINI_API_KEY` | ✅ Yes | Google Gemini API key for claim extraction |
+| `GOOGLE_API_KEY` | ✅ Yes | Google Fact Check Tools API key |
+| `NEWS_API_KEY` | ✅ Yes | NewsAPI.org key for real-time news validation |
+| `GUARDIAN_API_KEY` | ✅ Yes | The Guardian Open Platform API key |
+| `FLASK_ENV` | ⬜ Optional | Set to `development` for debug mode |
+
+> 💡 Copy `.env.example` to `.env` and fill in your credentials before running the backend.
+
+---
+
 ## 🔌 API Endpoints
 
 The Flask backend exposes the following REST API endpoints:
