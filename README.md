@@ -68,6 +68,20 @@ graph TD
 
 ---
 
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|---|---|
+| **Backend Framework** | Python 3.10+, Flask |
+| **AI / ML** | RoBERTa (fine-tuned), Hugging Face Transformers |
+| **Vector Search** | FAISS + `all-MiniLM-L6-v2` embeddings |
+| **OCR** | Tesseract OCR, PyMuPDF |
+| **External APIs** | Google Fact Check, NewsAPI, The Guardian API |
+| **Frontend** | Next.js 14, TypeScript, Tailwind CSS |
+| **LLM Integration** | Google Gemini API |
+
+---
+
 ## 🚀 Getting Started
 
 To run the entire system locally, follow the steps below to set up both the backend and frontend:
