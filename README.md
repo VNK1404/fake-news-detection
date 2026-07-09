@@ -190,5 +190,32 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
 
 ---
 
+## 🖼️ Screenshots & Demo
+
+> The platform features a premium glassmorphic dashboard with real-time step-by-step progress visualization.
+
+| Feature | Description |
+|---------|-------------|
+| 📤 Document Upload | Drag-and-drop PDF / image uploader |
+| 🔍 Live Analysis | Animated step-by-step verification pipeline |
+| 📈 Confidence Score | Color-coded verdict with percentage confidence |
+| 📊 Analytics Charts | Historical trends and verdict distribution |
+| 🌙 Dark Mode | Full dark-mode glassmorphic UI |
+
+> 💡 **Live Demo**: Clone the repo and run both backend and frontend locally to experience the full platform.
+
+---
+
+## 🙏 Acknowledgements
+
+- [Hugging Face Transformers](https://huggingface.co/transformers/) — RoBERTa model hosting and fine-tuning
+- [FAISS by Facebook AI Research](https://github.com/facebookresearch/faiss) — Efficient similarity search
+- [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) — Open-source OCR engine
+- [Google Fact Check Tools API](https://developers.google.com/fact-check/tools/api/) — Fact-checking database
+- [NewsAPI](https://newsapi.org/) — Real-time news aggregation
+- [The Guardian Open Platform](https://open-platform.theguardian.com/) — Trusted journalism API
+
+---
+
 ## 📄 License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
