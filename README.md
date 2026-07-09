@@ -48,6 +48,22 @@ This repository is structured as a monorepo containing both the backend and fron
 
 ---
 
+## 📊 Model Performance
+
+The fine-tuned **RoBERTa** classifier was trained and evaluated on a curated fake news dataset:
+
+| Metric | Score |
+|--------|-------|
+| **Validation F1-Score** | 99.96% |
+| **Validation Accuracy** | 99.95% |
+| **Training Dataset Size** | ~44,898 news claims |
+| **Embedding Model** | `all-MiniLM-L6-v2` |
+| **Vector Index** | FAISS (IndexFlatL2) |
+
+> The FAISS similarity index enables sub-millisecond semantic matching at scale.
+
+---
+
 ## ⚙️ Architecture & Pipeline Flow
 
 ```mermaid
