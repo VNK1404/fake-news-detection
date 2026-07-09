@@ -10,6 +10,19 @@ An enterprise-ready, AI-driven digital evidence integrity monitoring system. Thi
 
 ---
 
+## 📑 Table of Contents
+
+- [Project Structure](#-project-structure)
+- [Key Features](#-key-features)
+- [Architecture & Pipeline Flow](#️-architecture--pipeline-flow)
+- [Tech Stack](#-tech-stack)
+- [Getting Started](#-getting-started)
+- [API Endpoints](#-api-endpoints)
+- [Contributing](#-contributing)
+- [License](#-license)
+
+---
+
 ## 📂 Project Structure
 
 This repository is structured as a monorepo containing both the backend and frontend components:
