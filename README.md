@@ -100,7 +100,7 @@ graph TD
 
 ## 🚀 Getting Started
 
-To run the entire system locally, follow the steps below to set up both the backend and frontend:
+Use the instructions below to get both the backend and frontend up and running on your local machine:
 
 ### 1. Backend Setup
 1. Change directory to `backend`:
