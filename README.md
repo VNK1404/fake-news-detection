@@ -43,7 +43,7 @@ This repository follows a monorepo layout that houses both the backend and front
   3. **Google Fact Check API**: Real-time cross-referencing with global fact-checking databases.
   4. **NewsAPI Search**: Real-time validation against news sources.
   5. **The Guardian Content API**: Validation against trusted news publications.
-* **Weighted Decision Engine**: Aggregates all model and API signals to produce a final consensus verdict (`Real`, `Fake`, or `Uncertain`) with a confidence level.
+* **Weighted Decision Engine**: Combines all model outputs and API responses to deliver a unified final verdict (`Real`, `Fake`, or `Uncertain`) along with an associated confidence score.
 * **Premium Dashboard UI**: Responsive interface featuring glassmorphic design and real-time step progress visualization.
 
 ---
