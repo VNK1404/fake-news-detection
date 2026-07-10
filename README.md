@@ -6,7 +6,7 @@
 ![Contributions Welcome](https://img.shields.io/badge/Contributions-Welcome-brightgreen)
 ![Status](https://img.shields.io/badge/Status-Active-success)
 
-An enterprise-ready, AI-driven digital evidence integrity monitoring system. This platform evaluates claims extracted from uploaded documents (PDFs and images) through multiple parallel local and remote verification channels. It combines a robust Python/Flask AI backend with a modern Next.js/TypeScript dashboard user interface.
+A production-grade, AI-powered system for monitoring the integrity of digital evidence. The platform verifies claims pulled from uploaded documents (PDFs and images) via multiple concurrent local and remote validation pipelines, pairing a powerful Python/Flask AI backend with a modern Next.js/TypeScript dashboard.
 
 ---
 
@@ -25,7 +25,7 @@ An enterprise-ready, AI-driven digital evidence integrity monitoring system. Thi
 
 ## 📂 Project Structure
 
-This repository is structured as a monorepo containing both the backend and frontend components:
+This repository follows a monorepo layout that houses both the backend and frontend components together:
 
 * **[`backend/`](backend/README.md)**: Python/Flask API service that handles document scanning (OCR), claims extraction, and runs the parallel verification engine.
 * **[`frontend/verinews-ui/`](frontend/verinews-ui/README.md)**: Next.js + TypeScript + Tailwind CSS web dashboard displaying interactive real-time analysis reports and analytics charts.
@@ -43,14 +43,14 @@ This repository is structured as a monorepo containing both the backend and fron
   3. **Google Fact Check API**: Real-time cross-referencing with global fact-checking databases.
   4. **NewsAPI Search**: Real-time validation against news sources.
   5. **The Guardian Content API**: Validation against trusted news publications.
-* **Weighted Decision Engine**: Aggregates all model and API signals to produce a final consensus verdict (`Real`, `Fake`, or `Uncertain`) with a confidence level.
+* **Weighted Decision Engine**: Combines all model outputs and API responses to deliver a unified final verdict (`Real`, `Fake`, or `Uncertain`) along with an associated confidence score.
 * **Premium Dashboard UI**: Responsive interface featuring glassmorphic design and real-time step progress visualization.
 
 ---
 
 ## 📊 Model Performance
 
-The fine-tuned **RoBERTa** classifier was trained and evaluated on a curated fake news dataset:
+Our fine-tuned **RoBERTa** model was benchmarked against a curated fake news dataset, achieving the following results:
 
 | Metric | Score |
 |--------|-------|
@@ -100,7 +100,7 @@ graph TD
 
 ## 🚀 Getting Started
 
-To run the entire system locally, follow the steps below to set up both the backend and frontend:
+Use the instructions below to get both the backend and frontend up and running on your local machine:
 
 ### 1. Backend Setup
 1. Change directory to `backend`:
@@ -147,7 +147,7 @@ To run the entire system locally, follow the steps below to set up both the back
 
 ## 🔐 Environment Variables
 
-All API keys must be placed in a `.env` file inside the `backend/` directory. Never commit your `.env` file.
+Store all API keys in a `.env` file within the `backend/` directory. Make sure you never commit this file to version control.
 
 | Variable | Required | Description |
 |----------|----------|-------------|
@@ -178,7 +178,7 @@ The Flask backend exposes the following REST API endpoints:
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow these steps:
+We warmly welcome contributions! To get started, please follow the steps outlined below:
 
 1. Fork the repository
 2. Create a new branch: `git checkout -b feature/your-feature-name`
@@ -192,7 +192,7 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
 
 ## 🖼️ Screenshots & Demo
 
-> The platform features a premium glassmorphic dashboard with real-time step-by-step progress visualization.
+> The platform ships with a high-end glassmorphic dashboard that delivers live, step-by-step progress updates throughout the verification process.
 
 | Feature | Description |
 |---------|-------------|
