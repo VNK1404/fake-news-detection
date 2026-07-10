@@ -178,7 +178,7 @@ The Flask backend exposes the following REST API endpoints:
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow these steps:
+We warmly welcome contributions! To get started, please follow the steps outlined below:
 
 1. Fork the repository
 2. Create a new branch: `git checkout -b feature/your-feature-name`
