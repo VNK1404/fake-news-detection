@@ -6,7 +6,7 @@
 ![Contributions Welcome](https://img.shields.io/badge/Contributions-Welcome-brightgreen)
 ![Status](https://img.shields.io/badge/Status-Active-success)
 
-An enterprise-ready, AI-driven digital evidence integrity monitoring system. This platform evaluates claims extracted from uploaded documents (PDFs and images) through multiple parallel local and remote verification channels. It combines a robust Python/Flask AI backend with a modern Next.js/TypeScript dashboard user interface.
+A production-grade, AI-powered system for monitoring the integrity of digital evidence. The platform verifies claims pulled from uploaded documents (PDFs and images) via multiple concurrent local and remote validation pipelines, pairing a powerful Python/Flask AI backend with a modern Next.js/TypeScript dashboard.
 
 ---
 
