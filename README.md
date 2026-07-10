@@ -147,7 +147,7 @@ Use the instructions below to get both the backend and frontend up and running o
 
 ## 🔐 Environment Variables
 
-All API keys must be placed in a `.env` file inside the `backend/` directory. Never commit your `.env` file.
+Store all API keys in a `.env` file within the `backend/` directory. Make sure you never commit this file to version control.
 
 | Variable | Required | Description |
 |----------|----------|-------------|
