@@ -50,7 +50,7 @@ This repository follows a monorepo layout that houses both the backend and front
 
 ## 📊 Model Performance
 
-The fine-tuned **RoBERTa** classifier was trained and evaluated on a curated fake news dataset:
+Our fine-tuned **RoBERTa** model was benchmarked against a curated fake news dataset, achieving the following results:
 
 | Metric | Score |
 |--------|-------|
