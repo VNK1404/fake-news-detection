@@ -192,7 +192,7 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
 
 ## 🖼️ Screenshots & Demo
 
-> The platform features a premium glassmorphic dashboard with real-time step-by-step progress visualization.
+> The platform ships with a high-end glassmorphic dashboard that delivers live, step-by-step progress updates throughout the verification process.
 
 | Feature | Description |
 |---------|-------------|
