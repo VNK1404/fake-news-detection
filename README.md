@@ -202,7 +202,7 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
 | 📊 Analytics Charts | Historical trends and verdict distribution |
 | 🌙 Dark Mode | Full dark-mode glassmorphic UI |
 
-> 💡 **Live Demo**: Clone the repo and run both backend and frontend locally to experience the full platform.
+> 💡 **Try it locally**: Fork the repo, spin up the backend and frontend, and explore the full platform on your machine.
 
 ---
 
