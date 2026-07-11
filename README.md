@@ -27,7 +27,7 @@ An AI-powered, production-ready platform built to assess the authenticity of dig
 
 This repository follows a monorepo layout that houses both the backend and frontend components together:
 
-* **[`backend/`](backend/README.md)**: Python/Flask API service that handles document scanning (OCR), claims extraction, and runs the parallel verification engine.
+* **[`backend/`](backend/README.md)**: Python/Flask API service responsible for OCR-based document scanning, claim extraction, and orchestrating the parallel verification engine.
 * **[`frontend/verinews-ui/`](frontend/verinews-ui/README.md)**: Next.js + TypeScript + Tailwind CSS web dashboard displaying interactive real-time analysis reports and analytics charts.
 
 ---
