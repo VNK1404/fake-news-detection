@@ -60,7 +60,7 @@ Our fine-tuned **RoBERTa** model was benchmarked against a curated fake news dat
 | **Embedding Model** | `all-MiniLM-L6-v2` |
 | **Vector Index** | FAISS (IndexFlatL2) |
 
-> The FAISS similarity index enables sub-millisecond semantic matching at scale.
+> The FAISS-based similarity index delivers ultra-fast semantic lookups, operating well under a millisecond even at large scale.
 
 ---
 
