@@ -141,7 +141,7 @@ Use the instructions below to get both the backend and frontend up and running o
    ```bash
    npm run dev
    ```
-   Open [http://localhost:3000](http://localhost:3000) in your browser to view the application.
+   Navigate to [http://localhost:3000](http://localhost:3000) in your browser to access the application.
 
 ---
 
