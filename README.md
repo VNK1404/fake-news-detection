@@ -163,7 +163,7 @@ Store all API keys in a `.env` file within the `backend/` directory. Make sure y
 
 ## 🔌 API Endpoints
 
-The Flask backend exposes the following REST API endpoints:
+Below are the REST API endpoints available from the Flask backend:
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
