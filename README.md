@@ -35,7 +35,7 @@ This repository follows a monorepo layout that houses both the backend and front
 ## ⚡ Key Features
 
 * **Multi-Modal Document Processing**: Upload scanned documents, PDFs, or images.
-* **Optical Character Recognition (OCR)**: Scans and extracts text using Tesseract OCR.
+* **Optical Character Recognition (OCR)**: Leverages Tesseract OCR to scan documents and extract readable text.
 * **Semantic Claim Extraction**: Automatically extracts the core claim from raw text using AI.
 * **Parallel Asynchronous Verification**:
   1. **Local Fine-Tuned RoBERTa Classifier**: Fine-tuned model yielding `99.96%` validation F1-score.
