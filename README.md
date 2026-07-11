@@ -6,7 +6,7 @@
 ![Contributions Welcome](https://img.shields.io/badge/Contributions-Welcome-brightgreen)
 ![Status](https://img.shields.io/badge/Status-Active-success)
 
-A production-grade, AI-powered system for monitoring the integrity of digital evidence. The platform verifies claims pulled from uploaded documents (PDFs and images) via multiple concurrent local and remote validation pipelines, pairing a powerful Python/Flask AI backend with a modern Next.js/TypeScript dashboard.
+An AI-powered, production-ready platform built to assess the authenticity of digital claims. It processes documents (PDFs and images), extracts key claims, and runs them through simultaneous local and remote verification pipelines — all backed by a Python/Flask API and a Next.js/TypeScript frontend.
 
 ---
 
@@ -27,7 +27,7 @@ A production-grade, AI-powered system for monitoring the integrity of digital ev
 
 This repository follows a monorepo layout that houses both the backend and frontend components together:
 
-* **[`backend/`](backend/README.md)**: Python/Flask API service that handles document scanning (OCR), claims extraction, and runs the parallel verification engine.
+* **[`backend/`](backend/README.md)**: Python/Flask API service responsible for OCR-based document scanning, claim extraction, and orchestrating the parallel verification engine.
 * **[`frontend/verinews-ui/`](frontend/verinews-ui/README.md)**: Next.js + TypeScript + Tailwind CSS web dashboard displaying interactive real-time analysis reports and analytics charts.
 
 ---
@@ -35,7 +35,7 @@ This repository follows a monorepo layout that houses both the backend and front
 ## ⚡ Key Features
 
 * **Multi-Modal Document Processing**: Upload scanned documents, PDFs, or images.
-* **Optical Character Recognition (OCR)**: Scans and extracts text using Tesseract OCR.
+* **Optical Character Recognition (OCR)**: Leverages Tesseract OCR to scan documents and extract readable text.
 * **Semantic Claim Extraction**: Automatically extracts the core claim from raw text using AI.
 * **Parallel Asynchronous Verification**:
   1. **Local Fine-Tuned RoBERTa Classifier**: Fine-tuned model yielding `99.96%` validation F1-score.
@@ -60,7 +60,7 @@ Our fine-tuned **RoBERTa** model was benchmarked against a curated fake news dat
 | **Embedding Model** | `all-MiniLM-L6-v2` |
 | **Vector Index** | FAISS (IndexFlatL2) |
 
-> The FAISS similarity index enables sub-millisecond semantic matching at scale.
+> The FAISS-based similarity index delivers ultra-fast semantic lookups, operating well under a millisecond even at large scale.
 
 ---
 
@@ -126,7 +126,7 @@ Use the instructions below to get both the backend and frontend up and running o
    ```bash
    python app.py
    ```
-   The API will start running on [http://localhost:5000](http://localhost:5000).
+   Once started, the API will be available at [http://localhost:5000](http://localhost:5000).
 
 ### 2. Frontend Setup
 1. Change directory to `frontend/verinews-ui`:
@@ -141,7 +141,7 @@ Use the instructions below to get both the backend and frontend up and running o
    ```bash
    npm run dev
    ```
-   Open [http://localhost:3000](http://localhost:3000) in your browser to view the application.
+   Navigate to [http://localhost:3000](http://localhost:3000) in your browser to access the application.
 
 ---
 
@@ -163,7 +163,7 @@ Store all API keys in a `.env` file within the `backend/` directory. Make sure y
 
 ## 🔌 API Endpoints
 
-The Flask backend exposes the following REST API endpoints:
+Below are the REST API endpoints available from the Flask backend:
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -202,7 +202,7 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
 | 📊 Analytics Charts | Historical trends and verdict distribution |
 | 🌙 Dark Mode | Full dark-mode glassmorphic UI |
 
-> 💡 **Live Demo**: Clone the repo and run both backend and frontend locally to experience the full platform.
+> 💡 **Try it locally**: Fork the repo, spin up the backend and frontend, and explore the full platform on your machine.
 
 ---
 
