@@ -126,7 +126,7 @@ Use the instructions below to get both the backend and frontend up and running o
    ```bash
    python app.py
    ```
-   The API will start running on [http://localhost:5000](http://localhost:5000).
+   Once started, the API will be available at [http://localhost:5000](http://localhost:5000).
 
 ### 2. Frontend Setup
 1. Change directory to `frontend/verinews-ui`:
